@@ -1,0 +1,49 @@
+<app-navbar *ngIf="showChrome"></app-navbar>
+
+<main class="app-main">
+  <router-outlet></router-outlet>
+</main>
+
+<app-footer *ngIf="showChrome"></app-footer>
+
+<nav class="mobile-bottom-nav" *ngIf="showChrome">
+  <a routerLink="/home" routerLinkActive="active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M4 11.5L12 4l8 7.5M6 10v9h12v-9" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+    </svg>
+    <span>Home</span>
+  </a>
+  <a routerLink="/products" routerLinkActive="active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="3" width="7" height="7" rx="1.4" stroke="currentColor" stroke-width="1.6" />
+      <rect x="14" y="3" width="7" height="7" rx="1.4" stroke="currentColor" stroke-width="1.6" />
+      <rect x="3" y="14" width="7" height="7" rx="1.4" stroke="currentColor" stroke-width="1.6" />
+      <rect x="14" y="14" width="7" height="7" rx="1.4" stroke="currentColor" stroke-width="1.6" />
+    </svg>
+    <span>Categories</span>
+  </a>
+  <a routerLink="/products" routerLinkActive="active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.6" />
+      <path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+    </svg>
+    <span>Search</span>
+  </a>
+  <a class="cart-tab" routerLink="/cart" routerLinkActive="active">
+    <span class="icon-wrap">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+        <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" />
+      </svg>
+      <span class="badge" *ngIf="cartService.count > 0">{{ cartService.count }}</span>
+    </span>
+    <span>Cart</span>
+  </a>
+  <a routerLink="/account" routerLinkActive="active">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="8" r="3.4" stroke="currentColor" stroke-width="1.6" />
+      <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+    </svg>
+    <span>Account</span>
+  </a>
+</nav>

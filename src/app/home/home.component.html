@@ -1,0 +1,330 @@
+<section class="hero-section">
+  <div class="hero-copy">
+    <span class="eyebrow">Premium Organic Skin Care</span>
+    <h1>Nourish Your Natural Radiance</h1>
+    <p>
+      Imbue a golden glow with our Kumkumadi Face Elixir Oil, infused with pure
+      Kashmiri saffron threads, real sandalwood, and raw goat milk.
+    </p>
+
+    <div class="hero-actions">
+      <button type="button" class="primary-btn" (click)="scrollToSection('shop-section')">
+        Shop Now
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+      <button type="button" class="secondary-btn" (click)="scrollToSection('philosophy-section')">
+        Our Philosophy
+      </button>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <img [src]="heroImage" alt="Shriza Naturals products" />
+    <div class="hero-dots">
+      <span class="active"></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+</section>
+
+<section class="offers-section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow small">Exclusive Wellness Deals</span>
+      <h2>Special Offers &amp; Coupons</h2>
+    </div>
+    <div class="head-arrows">
+      <button type="button" aria-label="Previous">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
+      <button type="button" aria-label="Next">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="offers-grid">
+    <article class="offer-card" *ngFor="let offer of offers" [class]="'theme-' + offer.theme">
+      <div class="offer-top">
+        <div>
+          <span class="offer-title">{{ offer.title }}</span>
+          <span class="offer-discount">{{ offer.discount }}</span>
+        </div>
+        <span class="offer-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M3 12l3-7h12l3 7-9 9-9-9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          </svg>
+        </span>
+      </div>
+      <p>{{ offer.desc }}</p>
+      <span class="offer-code">{{ offer.code }}</span>
+    </article>
+  </div>
+
+  <div class="trust-row">
+    <div class="trust-card" *ngFor="let badge of trustBadges">
+      <span class="trust-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="9" stroke="#0d7644" stroke-width="1.6" />
+          <path d="M8.5 12.5l2.2 2.2L16 9.5" stroke="#0d7644" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
+      <strong>{{ badge.title }}</strong>
+      <span>{{ badge.desc }}</span>
+    </div>
+  </div>
+</section>
+
+<section class="categories-section">
+  <span class="eyebrow small center">Handcrafted Wellness</span>
+  <h2 class="center">Shop by Organic Category</h2>
+  <p class="section-sub center">Discover curated remedies designed to align your mind, body, and spirit.</p>
+
+  <div class="categories-grid-row">
+    <a class="category-pill" *ngFor="let category of categories" [routerLink]="['/category', category.slug]">
+      <span class="category-circle">
+        <img [src]="category.image" [alt]="category.name" />
+      </span>
+      <strong>{{ category.name }}</strong>
+      <span>{{ category.count }} Products</span>
+    </a>
+  </div>
+</section>
+
+<section id="shop-section" class="shop-section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow small">Pure &amp; Active</span>
+      <h2>Featured Formulations</h2>
+    </div>
+    <a class="explore-link" routerLink="/products">
+      Explore All Products
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    </a>
+  </div>
+
+  <div class="product-grid">
+    <article class="product-card" *ngFor="let product of featuredProducts">
+      <div class="product-media">
+        <span class="badge" [class.pink]="product.badgeTone === 'pink'">{{ product.badge }}</span>
+        <button type="button" class="wishlist-btn" aria-label="Add to wishlist">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+              stroke="#2b3a2c"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <a [routerLink]="['/product', productId(product.name)]">
+          <img [src]="product.image" [alt]="product.name" />
+        </a>
+      </div>
+      <div class="product-info">
+        <span class="product-category">{{ product.category | uppercase }}</span>
+        <h3><a [routerLink]="['/product', productId(product.name)]">{{ product.name }}</a></h3>
+        <div class="product-rating">
+          <span class="stars">
+            <svg *ngFor="let s of stars(product.rating)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+              <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
+            </svg>
+          </span>
+          <span class="rating-text">{{ product.rating }} ({{ product.reviews }})</span>
+        </div>
+        <div class="product-bottom">
+          <div class="price">
+            <strong>₹{{ product.price }}</strong>
+            <s>₹{{ product.oldPrice }}</s>
+          </div>
+          <div class="product-actions">
+            <button type="button" class="buy-btn">Buy Now</button>
+            <button type="button" class="cart-btn" aria-label="Add to cart">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="bestsellers-section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow small">Highly Acclaimed</span>
+      <h2>Our Best Sellers</h2>
+    </div>
+    <a class="explore-link" routerLink="/products">
+      Explore All Products
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    </a>
+  </div>
+
+  <div class="product-grid four-col">
+    <article class="product-card" *ngFor="let product of bestSellers">
+      <div class="product-media">
+        <span class="badge" [class.pink]="product.badgeTone === 'pink'">{{ product.badge }}</span>
+        <button type="button" class="wishlist-btn" aria-label="Add to wishlist">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+              stroke="#2b3a2c"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <a [routerLink]="['/product', productId(product.name)]">
+          <img [src]="product.image" [alt]="product.name" />
+        </a>
+      </div>
+      <div class="product-info">
+        <span class="product-category">{{ product.category | uppercase }}</span>
+        <h3><a [routerLink]="['/product', productId(product.name)]">{{ product.name }}</a></h3>
+        <div class="product-rating">
+          <span class="stars">
+            <svg *ngFor="let s of stars(product.rating)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+              <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
+            </svg>
+          </span>
+          <span class="rating-text">{{ product.rating }} ({{ product.reviews }})</span>
+        </div>
+        <div class="product-bottom">
+          <div class="price">
+            <strong>₹{{ product.price }}</strong>
+            <s>₹{{ product.oldPrice }}</s>
+          </div>
+          <div class="product-actions">
+            <button type="button" class="buy-btn">Buy Now</button>
+            <button type="button" class="cart-btn" aria-label="Add to cart">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section class="newarrivals-section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow small">Freshly Harvested</span>
+      <h2>New Arrivals</h2>
+    </div>
+    <a class="explore-link" routerLink="/products">
+      Explore All Products
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+    </a>
+  </div>
+
+  <div class="product-grid four-col">
+    <article class="product-card" *ngFor="let product of newArrivals">
+      <div class="product-media">
+        <span class="badge" [class.pink]="product.badgeTone === 'pink'">{{ product.badge }}</span>
+        <button type="button" class="wishlist-btn" aria-label="Add to wishlist">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+              stroke="#2b3a2c"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <a [routerLink]="['/product', productId(product.name)]">
+          <img [src]="product.image" [alt]="product.name" />
+        </a>
+      </div>
+      <div class="product-info">
+        <span class="product-category">{{ product.category | uppercase }}</span>
+        <h3><a [routerLink]="['/product', productId(product.name)]">{{ product.name }}</a></h3>
+        <div class="product-rating">
+          <span class="stars">
+            <svg *ngFor="let s of stars(product.rating)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+              <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
+            </svg>
+          </span>
+          <span class="rating-text">{{ product.rating }} ({{ product.reviews }})</span>
+        </div>
+        <div class="product-bottom">
+          <div class="price">
+            <strong>₹{{ product.price }}</strong>
+            <s>₹{{ product.oldPrice }}</s>
+          </div>
+          <div class="product-actions">
+            <button type="button" class="buy-btn">Buy Now</button>
+            <button type="button" class="cart-btn" aria-label="Add to cart">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="philosophy-section" class="why-section">
+  <span class="eyebrow small center">Our Promise</span>
+  <h2 class="center">Why Shriza Naturals?</h2>
+  <p class="section-sub center">We take the bar of premium natural wellness. Clean luxury, zero compromises.</p>
+
+  <div class="why-grid">
+    <article class="why-card" *ngFor="let item of whyUs">
+      <span class="why-number">{{ item.number }}</span>
+      <h3>{{ item.title }}</h3>
+      <p>{{ item.desc }}</p>
+    </article>
+  </div>
+</section>
+
+<section class="testimonials-section">
+  <span class="eyebrow small center">Real Results</span>
+  <h2 class="center">What Our Family Says</h2>
+  <p class="section-sub center">Real stories from individuals who transformed their wellness journey with Shriza.</p>
+
+  <div class="testimonials-grid">
+    <article class="testimonial-card" *ngFor="let testimonial of testimonials">
+      <div class="testimonial-head">
+        <img class="avatar" [src]="testimonial.avatar" [alt]="testimonial.name" />
+        <div>
+          <strong>{{ testimonial.name }}</strong>
+          <div class="stars">
+            <svg *ngFor="let s of stars(testimonial.rating)" width="13" height="13" viewBox="0 0 24 24" fill="#f3a72e">
+              <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" />
+            </svg>
+          </div>
+          <span class="testimonial-date">{{ testimonial.date }}</span>
+        </div>
+      </div>
+      <span class="verified">Verified Purchase: {{ testimonial.verifiedFor }}</span>
+      <p>"{{ testimonial.text }}"</p>
+      <img class="testimonial-product" [src]="testimonial.productImage" [alt]="testimonial.verifiedFor" />
+    </article>
+  </div>
+</section>
+
+<section class="gallery-section">
+  <span class="eyebrow small center">#ShrizaFamily</span>
+  <h2 class="center">Share The Organic Lifestyle</h2>
+  <p class="section-sub center">Tag us in your morning rituals and something timeless to get featured on our feed.</p>
+
+  <div class="gallery-grid">
+    <div class="gallery-item" *ngFor="let image of galleryImages">
+      <img [src]="image" alt="Shriza lifestyle" />
+    </div>
+  </div>
+</section>

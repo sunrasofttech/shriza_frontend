@@ -1,0 +1,104 @@
+<div class="order-details-topbar">
+  <a class="back-link" routerLink="/home">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    Back
+  </a>
+
+  <div class="title-block">
+    <h1>Order Details</h1>
+    <span>ID: {{ order.orderNumber }} &bull; Date: {{ order.orderDate }}</span>
+  </div>
+
+  <button type="button" class="track-order-btn" routerLink="/track-order">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+      <circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.6" />
+    </svg>
+    Track<span class="track-text-full"> Order</span>
+  </button>
+</div>
+
+<div class="order-details-body">
+  <div class="details-main">
+    <section class="details-card">
+      <h2>Items Ordered</h2>
+      <div class="ordered-item-row" *ngFor="let item of order.items">
+        <img [src]="item.image" [alt]="item.name" />
+        <div class="ordered-item-info">
+          <strong>{{ item.name }}</strong>
+          <span>Size: {{ item.size }} &bull; Qty: {{ item.quantity }}</span>
+        </div>
+        <span class="ordered-item-price">₹{{ item.price * item.quantity | number: '1.0-0' }}</span>
+      </div>
+    </section>
+
+    <section class="details-card">
+      <h2>Bill Details</h2>
+      <div class="bill-row">
+        <span>Items Subtotal:</span>
+        <strong>₹{{ order.itemsSubtotal | number: '1.2-2' }}</strong>
+      </div>
+      <div class="bill-row discount">
+        <span>Coupon Discount:</span>
+        <strong>-₹{{ order.discount }}</strong>
+      </div>
+      <div class="bill-row">
+        <span>Shipping &amp; Handling:</span>
+        <strong class="free">FREE</strong>
+      </div>
+      <div class="bill-row">
+        <span>Estimated GST (5%):</span>
+        <strong>₹{{ order.tax }}</strong>
+      </div>
+      <div class="bill-total">
+        <span>Total Bill Amount:</span>
+        <strong>₹{{ order.totalAmount }}</strong>
+      </div>
+    </section>
+  </div>
+
+  <div class="details-side">
+    <section class="details-card">
+      <h2>Delivery Address</h2>
+      <p class="address-name">{{ order.shippingAddress.name }}</p>
+      <p class="address-lines">
+        {{ order.shippingAddress.line1 }}<br />
+        {{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} - {{ order.shippingAddress.zip }}
+      </p>
+      <p class="address-phone">Contact Phone: {{ order.shippingAddress.phone }}</p>
+
+      <div class="meta-rows">
+        <div class="meta-row">
+          <span>Payment Status:</span>
+          <strong class="paid">{{ order.paymentStatus }}</strong>
+        </div>
+        <div class="meta-row">
+          <span>Paid via:</span>
+          <strong>{{ order.paymentMethod }}</strong>
+        </div>
+        <div class="meta-row">
+          <span>Delivery Speed:</span>
+          <strong>{{ order.deliverySpeed }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <button type="button" class="invoice-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <path d="M7 3h7l5 5v13H7V3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+        <path d="M9 12h6M9 16h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      Download PDF Invoice
+    </button>
+
+    <button type="button" class="refund-btn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+        <path d="M12 8v4M12 15h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+      </svg>
+      Request Return / Refund
+    </button>
+  </div>
+</div>

@@ -1,0 +1,249 @@
+<section class="product-top">
+  <div class="gallery">
+    <div class="main-image">
+      <img [src]="activeImage" [alt]="name" />
+      <button type="button" class="zoom-btn" aria-label="Zoom image">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="11" r="7" stroke="#1f3421" stroke-width="1.8" />
+          <path d="M21 21l-4.3-4.3" stroke="#1f3421" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="thumbnail-row">
+      <button
+        type="button"
+        class="thumbnail"
+        *ngFor="let image of images"
+        [class.active]="image === activeImage"
+        (click)="setActiveImage(image)"
+      >
+        <img [src]="image" alt="Product thumbnail" />
+      </button>
+    </div>
+  </div>
+
+  <div class="product-info-panel">
+    <span class="category-badge">{{ category | uppercase }}</span>
+    <h1>{{ name }}</h1>
+
+    <div class="rating-row">
+      <span class="stars">
+        <svg *ngFor="let s of stars(rating)" width="15" height="15" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+          <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
+        </svg>
+      </span>
+      <strong>{{ rating }}</strong>
+      <span class="review-count">({{ reviews }} Customer Reviews)</span>
+      <span class="divider">|</span>
+      <span class="stock">In Stock (Only {{ stockLeft }} left)</span>
+    </div>
+
+    <div class="mobile-quicknav">
+      <a routerLink="/home" class="quicknav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 11.5L12 4l8 7.5M6 10v9h12v-9" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" /></svg>
+        <span>Home</span>
+      </a>
+      <a routerLink="/home" class="quicknav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.4" stroke="#374a37" stroke-width="1.6" /><rect x="14" y="3" width="7" height="7" rx="1.4" stroke="#374a37" stroke-width="1.6" /><rect x="3" y="14" width="7" height="7" rx="1.4" stroke="#374a37" stroke-width="1.6" /><rect x="14" y="14" width="7" height="7" rx="1.4" stroke="#374a37" stroke-width="1.6" /></svg>
+        <span>Categories</span>
+      </a>
+      <a class="quicknav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#374a37" stroke-width="1.6" /><path d="M21 21l-4.3-4.3" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" /></svg>
+        <span>Search</span>
+      </a>
+      <a routerLink="/cart" class="quicknav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" /><path d="M9 8a3 3 0 0 1 6 0" stroke="#374a37" stroke-width="1.6" /></svg>
+        <span>Cart</span>
+      </a>
+      <a routerLink="/account" class="quicknav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.4" stroke="#374a37" stroke-width="1.6" /><path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" /></svg>
+        <span>Account</span>
+      </a>
+    </div>
+
+    <div class="price-row">
+      <strong class="price">₹{{ price }}</strong>
+      <s class="old-price">₹{{ oldPrice }}</s>
+      <span class="save-badge">SAVE {{ discount }}%</span>
+    </div>
+
+    <p class="description">{{ description }}</p>
+
+    <div class="sizes-block">
+      <span class="block-label">Available Sizes:</span>
+      <div class="size-options">
+        <button
+          type="button"
+          *ngFor="let size of sizes"
+          class="size-pill"
+          [class.active]="size === selectedSize"
+          (click)="setSize(size)"
+        >
+          {{ size }}
+        </button>
+      </div>
+    </div>
+
+    <div class="quantity-row">
+      <div class="quantity-stepper">
+        <button type="button" (click)="decrement()" aria-label="Decrease quantity">-</button>
+        <span>{{ quantity }}</span>
+        <button type="button" (click)="increment()" aria-label="Increase quantity">+</button>
+      </div>
+      <button type="button" class="wishlist-toggle" [class.active]="isWishlisted" (click)="toggleWishlist()" aria-label="Add to wishlist">
+        <svg width="18" height="18" viewBox="0 0 24 24" [attr.fill]="isWishlisted ? '#d6477b' : 'none'">
+          <path
+            d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+            [attr.stroke]="isWishlisted ? '#d6477b' : '#2b3a2c'"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <div class="action-buttons">
+      <button type="button" class="add-cart-btn">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+          <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" />
+        </svg>
+        Add to Cart
+      </button>
+      <button type="button" class="buy-now-btn">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+          <path d="M5 9h14l-1 11H6L5 9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          <path d="M9 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="1.6" />
+        </svg>
+        Buy It Now
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="detail-tabs-section">
+  <div class="tabs-card">
+    <div class="tabs-header">
+      <button type="button" [class.active]="activeTab === 'benefits'" (click)="setTab('benefits')">Benefits</button>
+      <button type="button" [class.active]="activeTab === 'ingredients'" (click)="setTab('ingredients')">Ingredients</button>
+      <button type="button" [class.active]="activeTab === 'usage'" (click)="setTab('usage')">Usage</button>
+    </div>
+
+    <ul class="tab-list" *ngIf="activeTab === 'benefits'">
+      <li *ngFor="let item of benefits">{{ item }}</li>
+    </ul>
+
+    <div class="ingredients-grid" *ngIf="activeTab === 'ingredients'">
+      <div class="ingredient-pill" *ngFor="let item of ingredients">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="9" r="5" stroke="#0d7644" stroke-width="1.6" />
+          <path d="M9.5 13.5L8 21l4-2 4 2-1.5-7.5" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
+        </svg>
+        <span>{{ item }}</span>
+      </div>
+    </div>
+
+    <div class="usage-list" *ngIf="activeTab === 'usage'">
+      <p class="usage-block" *ngFor="let item of usage">{{ item }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="faq-section">
+  <h2>Frequently Asked Questions</h2>
+
+  <div class="faq-list">
+    <article class="faq-item" *ngFor="let faq of faqs" [class.open]="faq.open">
+      <button type="button" class="faq-question" (click)="toggleFaq(faq)">
+        {{ faq.question }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [class.flipped]="faq.open">
+          <path d="M6 9l6 6 6-6" stroke="#374a37" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+      <p class="faq-answer" *ngIf="faq.open">{{ faq.answer }}</p>
+    </article>
+  </div>
+</section>
+
+<section class="ratings-section">
+  <h2>Ratings &amp; Reviews</h2>
+
+  <div class="ratings-card">
+    <div class="ratings-summary">
+      <strong>{{ rating }}</strong>
+      <span class="stars">
+        <svg *ngFor="let s of stars(rating)" width="16" height="16" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+          <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
+        </svg>
+      </span>
+      <span>Based on {{ reviews }} reviews</span>
+    </div>
+
+    <div class="ratings-bars">
+      <div class="rating-bar-row" *ngFor="let bar of ratingBreakdown">
+        <span class="bar-label">{{ bar.stars }} Star</span>
+        <span class="bar-track">
+          <span class="bar-fill" [style.width.%]="bar.percent"></span>
+        </span>
+        <span class="bar-percent">{{ bar.percent }}%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="related-section">
+  <div class="section-head">
+    <h2>Related Products</h2>
+    <span class="same-category">Same category</span>
+  </div>
+
+  <div class="related-grid">
+    <article class="product-card" *ngFor="let product of relatedProducts">
+      <div class="product-media">
+        <span class="badge">{{ product.badge }}</span>
+        <button type="button" class="wishlist-btn" aria-label="Add to wishlist">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+              stroke="#2b3a2c"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <img [src]="product.image" [alt]="product.name" />
+      </div>
+      <div class="product-info">
+        <span class="product-category">{{ product.category | uppercase }}</span>
+        <h3>{{ product.name }}</h3>
+        <div class="product-rating">
+          <span class="stars">
+            <svg *ngFor="let s of stars(product.rating)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+              <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
+            </svg>
+          </span>
+          <span class="rating-text">{{ product.rating }} ({{ product.reviews }})</span>
+        </div>
+        <div class="product-bottom">
+          <div class="price-block">
+            <div class="price-line">
+              <strong>₹{{ product.price }}</strong>
+              <s>₹{{ product.oldPrice }}</s>
+            </div>
+            <span class="size-text">{{ product.size }}</span>
+          </div>
+          <div class="product-actions">
+            <button type="button" class="buy-btn">Buy Now</button>
+            <button type="button" class="cart-btn" aria-label="Add to cart">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+                <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>

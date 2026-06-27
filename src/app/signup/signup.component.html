@@ -1,0 +1,155 @@
+<div class="signup-wrapper">
+
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <div class="content">
+      <h1>Start Your Journey with Shriza Naturals</h1>
+
+      <p class="description">
+        Create an account to join the Shriza Family and enjoy exclusive
+        natural wellness benefits.
+      </p>
+
+      <ul class="benefits">
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3l7 3v6c0 5-3 8.5-7 9.5C8 20.5 5 17 5 12V6l7-3Z" stroke="#bfe3cd" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M9 12.3l2 2 4-4.3" stroke="#bfe3cd" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          Earn 5% Instant Cashbacks on orders above ₹1000
+        </li>
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3l7 3v6c0 5-3 8.5-7 9.5C8 20.5 5 17 5 12V6l7-3Z" stroke="#bfe3cd" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M9 12.3l2 2 4-4.3" stroke="#bfe3cd" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          Free Delivery & priority shipping for all members
+        </li>
+        <li>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3l7 3v6c0 5-3 8.5-7 9.5C8 20.5 5 17 5 12V6l7-3Z" stroke="#bfe3cd" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M9 12.3l2 2 4-4.3" stroke="#bfe3cd" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          Track shipment progress and download GST Invoices
+        </li>
+      </ul>
+    </div>
+
+    <div class="testimonial">
+      <div class="trust">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" fill="#fff" />
+          <path d="M8 12.5l2.5 2.5L16 9.5" stroke="#0d7644" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        Trusted by over 40,000+ happy customers
+      </div>
+
+      <p>
+        "Shriza's Asthma Relief Powder has drastically reduced my seasonal
+        wheezing. I feel 10 years younger and breathe so much easier!"
+      </p>
+
+      <span>— Rajesh K., Bangalore</span>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="form-container">
+
+      <div class="brand-logo">
+        <img class="logo-desktop" src="assets/logos/logo1.png" alt="Shriza Naturals Logo" />
+        <img class="logo-mobile" src="assets/logos/logo3.png" alt="Shriza Naturals Logo" />
+      </div>
+
+      <h2>Create Account</h2>
+
+      <p class="sub-title">
+        Enter your details below to set up your free wellness profile.
+      </p>
+
+      <form [formGroup]="signupForm" (ngSubmit)="register()">
+
+        <div class="form-group">
+          <label>FULL NAME</label>
+          <div class="input-box">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="3.4" stroke="#727a75" stroke-width="1.6" />
+              <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#727a75" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+            <input formControlName="full_name" type="text" placeholder="John Doe">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>EMAIL ADDRESS</label>
+          <div class="input-box">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="5" width="18" height="14" rx="2.4" stroke="#727a75" stroke-width="1.6" />
+              <path d="M4 7l8 6 8-6" stroke="#727a75" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <input formControlName="email" type="email" placeholder="name@example.com">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>MOBILE NUMBER</label>
+          <div class="input-box">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M7 3.5h3l1.5 4-2 1.5a12 12 0 0 0 5.5 5.5l1.5-2 4 1.5v3a1.5 1.5 0 0 1-1.6 1.5C12.5 18.2 5.8 11.5 5.5 5.1A1.5 1.5 0 0 1 7 3.5Z"
+                stroke="#727a75"
+                stroke-width="1.6"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <input formControlName="mobile" type="text" placeholder="98765 43210">
+          </div>
+        </div>
+
+        <div class="password-row">
+
+          <div class="form-group">
+            <label>PASSWORD</label>
+            <div class="input-box">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                <rect x="5" y="10" width="14" height="10" rx="2.2" stroke="#727a75" stroke-width="1.6" />
+                <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#727a75" stroke-width="1.6" />
+              </svg>
+              <input formControlName="password" type="password" placeholder="••••••••">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>CONFIRM PASSWORD</label>
+            <div class="input-box">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+                <rect x="5" y="10" width="14" height="10" rx="2.2" stroke="#727a75" stroke-width="1.6" />
+                <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#727a75" stroke-width="1.6" />
+              </svg>
+              <input formControlName="confirm_password" type="password" placeholder="••••••••">
+            </div>
+          </div>
+
+        </div>
+
+        <button class="register-btn" type="submit">
+          Register & Sign In
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+
+      </form>
+
+      <div class="divider"></div>
+
+      <p class="signin-text">
+        Already have an account?
+        <a routerLink="/login">Sign In Instead</a>
+      </p>
+
+    </div>
+  </div>
+
+</div>

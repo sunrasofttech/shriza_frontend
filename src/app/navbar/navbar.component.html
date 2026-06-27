@@ -1,0 +1,292 @@
+<nav class="navbar">
+  <a routerLink="/" class="logo" (click)="closeAll()">
+    <img src="assets/logos/logo3.png" alt="Shriza Naturals" class="logo-img" />
+  </a>
+
+  <button
+    type="button"
+    class="menu-toggle"
+    aria-label="Toggle navigation"
+    (click)="toggleMobileMenu()"
+  >
+    <span></span>
+    <span></span>
+    <span></span>
+  </button>
+
+  <div class="nav-overlay" *ngIf="isMobileMenuOpen" (click)="closeAll()"></div>
+
+  <ul class="nav-links">
+    <li><a routerLink="/" (click)="closeAll()">Home</a></li>
+    <li><a routerLink="/products" (click)="closeAll()">Shop</a></li>
+
+    <li class="dropdown-container">
+      <button class="dropdown-trigger" type="button" (click)="toggleDropdown($event)">
+        Categories
+        <svg class="arrow" [class.open]="isDropdownOpen" width="10" height="6" viewBox="0 0 10 6" fill="none">
+          <path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <div class="dropdown-menu" *ngIf="isDropdownOpen">
+        <div class="category-title">Shop by Category</div>
+        <div class="categories-grid">
+          <a *ngFor="let category of categories" [routerLink]="['/category', category.slug]" (click)="closeAll()">{{ category.name }}</a>
+        </div>
+      </div>
+    </li>
+
+    <li><a routerLink="/our-story" (click)="closeAll()">Our Story</a></li>
+    <li><a routerLink="/contact-us" (click)="closeAll()">Contact Us</a></li>
+  </ul>
+
+  <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+    <div class="mobile-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="#9aa79b" stroke-width="2" />
+        <path d="M21 21L16.65 16.65" stroke="#9aa79b" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      <input type="text" placeholder="Search products..." />
+    </div>
+
+    <div class="mobile-quick-actions">
+      <a class="quick-action" routerLink="/wishlist" (click)="closeAll()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+            stroke="#374a37"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <span>Wishlist</span>
+      </a>
+
+      <a class="quick-action" routerLink="/cart" (click)="closeAll()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M3 4h2l2.2 11.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 8H6.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="9.5" cy="20" r="1.3" fill="#374a37" />
+          <circle cx="17" cy="20" r="1.3" fill="#374a37" />
+        </svg>
+        <span>Cart</span>
+      </a>
+
+      <a class="quick-action" routerLink="/inbox" (click)="closeAll()">
+        <span class="quick-action-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M9.5 21a2.5 2.5 0 0 0 5 0" stroke="#374a37" stroke-width="1.6" />
+          </svg>
+          <span class="quick-action-badge">2</span>
+        </span>
+        <span>Inbox</span>
+      </a>
+    </div>
+
+    <nav class="mobile-links">
+      <a routerLink="/" (click)="closeAll()">Home</a>
+      <a routerLink="/products" (click)="closeAll()">Shop All Products</a>
+    </nav>
+
+    <div class="mobile-categories">
+      <span class="mobile-section-label">Categories</span>
+      <div class="mobile-categories-grid">
+        <a *ngFor="let category of categories" [routerLink]="['/category', category.slug]" (click)="closeAll()">{{ category.name }}</a>
+      </div>
+    </div>
+
+    <nav class="mobile-links">
+      <a routerLink="/our-story" (click)="closeAll()">Our Story</a>
+      <a routerLink="/contact-us" (click)="closeAll()">Contact Us</a>
+    </nav>
+
+    <div class="account-card">
+      <div class="account-head">
+        <div class="account-identity">
+          <span class="account-label">Signed in as</span>
+          <strong>{{ account.id }}</strong>
+          <span class="account-email">{{ account.email }}</span>
+        </div>
+        <div class="account-wallet">
+          <span>Wallet Balance</span>
+          <strong>₹{{ account.walletBalance }}</strong>
+        </div>
+      </div>
+
+      <div class="account-grid">
+        <a routerLink="/account" (click)="closeAll()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="3.4" stroke="#374a37" stroke-width="1.6" />
+            <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+          My Profile
+        </a>
+        <a routerLink="/account" (click)="closeAll()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M9 8a3 3 0 0 1 6 0" stroke="#374a37" stroke-width="1.6" />
+          </svg>
+          My Orders
+        </a>
+        <a routerLink="/account" (click)="closeAll()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#374a37" stroke-width="1.6" />
+            <path d="M3 10h18" stroke="#374a37" stroke-width="1.6" />
+          </svg>
+          Wallet
+        </a>
+        <a routerLink="/account" (click)="closeAll()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="3" stroke="#374a37" stroke-width="1.6" />
+            <path
+              d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h.1a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"
+              stroke="#374a37"
+              stroke-width="1.3"
+              stroke-linejoin="round"
+            />
+          </svg>
+          Settings
+        </a>
+      </div>
+
+      <button type="button" class="signout-btn" (click)="signOut()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M15 17l5-5-5-5M20 12H9M13 5H5v14h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        Sign Out
+      </button>
+    </div>
+  </div>
+
+  <div class="nav-right">
+
+  <div class="nav-search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+      <circle cx="11" cy="11" r="7" stroke="#9aa79b" stroke-width="2" />
+      <path d="M21 21L16.65 16.65" stroke="#9aa79b" stroke-width="2" stroke-linecap="round" />
+    </svg>
+    <input type="text" placeholder="Search herbal secrets..." />
+  </div>
+
+  <div class="nav-actions">
+    <div class="dropdown-container">
+      <button type="button" class="icon-btn" aria-label="Notifications" (click)="toggleNotifications($event)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" />
+          <path d="M9.5 21a2.5 2.5 0 0 0 5 0" stroke="#374a37" stroke-width="1.6" />
+        </svg>
+        <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+
+      <div class="notif-menu" *ngIf="isNotificationsOpen">
+        <div class="notif-head">
+          <span>Notifications</span>
+          <span class="notif-unread">{{ unreadCount }} unread</span>
+        </div>
+
+        <div class="notif-list">
+          <div class="notif-item" *ngFor="let notification of notifications">
+            <div class="notif-item-top">
+              <span class="notif-tag" [ngClass]="notification.tag.toLowerCase()">{{ notification.tag }}</span>
+              <span class="notif-date">{{ notification.date }}</span>
+            </div>
+            <strong>{{ notification.title }}</strong>
+            <p>{{ notification.desc }}</p>
+          </div>
+        </div>
+
+        <a class="notif-view-all" routerLink="/account" (click)="closeAll()">View all notifications</a>
+      </div>
+    </div>
+
+    <button type="button" class="icon-btn" aria-label="Wishlist" routerLink="/wishlist">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+          stroke="#374a37"
+          stroke-width="1.6"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    <button type="button" class="icon-btn" aria-label="Cart" routerLink="/cart">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M3 4h2l2.2 11.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 8H6.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        <circle cx="9.5" cy="20" r="1.3" fill="#374a37" />
+        <circle cx="17" cy="20" r="1.3" fill="#374a37" />
+      </svg>
+      <span class="badge" *ngIf="cartService.count > 0">{{ cartService.count }}</span>
+    </button>
+
+    <div class="dropdown-container">
+      <button type="button" class="icon-btn" aria-label="Account" (click)="toggleAccountMenu($event)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="3.4" stroke="#374a37" stroke-width="1.6" />
+          <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <div class="account-menu" *ngIf="isAccountMenuOpen">
+        <div class="account-menu-head">
+          <span class="account-label">Signed in as</span>
+          <strong>{{ account.id }}</strong>
+          <span class="account-email">{{ account.email }}</span>
+        </div>
+
+        <div class="account-menu-wallet">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#0d7644" stroke-width="1.6" />
+            <path d="M3 10h18" stroke="#0d7644" stroke-width="1.6" />
+          </svg>
+          Bal: ₹{{ account.walletBalance }}
+        </div>
+
+        <nav class="account-menu-links">
+          <a routerLink="/account" (click)="closeAll()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="3.4" stroke="#374a37" stroke-width="1.6" />
+              <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+            My Profile
+          </a>
+          <a routerLink="/account" (click)="closeAll()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" />
+              <path d="M9 8a3 3 0 0 1 6 0" stroke="#374a37" stroke-width="1.6" />
+            </svg>
+            My Orders
+          </a>
+          <a routerLink="/account" (click)="closeAll()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#374a37" stroke-width="1.6" />
+              <path d="M3 10h18" stroke="#374a37" stroke-width="1.6" />
+            </svg>
+            My Wallet
+          </a>
+          <a routerLink="/account" (click)="closeAll()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="3" stroke="#374a37" stroke-width="1.6" />
+              <path
+                d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h.1a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"
+                stroke="#374a37"
+                stroke-width="1.3"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Settings
+          </a>
+        </nav>
+
+        <button type="button" class="account-menu-signout" (click)="signOut()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M15 17l5-5-5-5M20 12H9M13 5H5v14h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+
+  </div>
+</nav>

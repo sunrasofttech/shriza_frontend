@@ -1,0 +1,68 @@
+<div class="otp-page">
+
+  <div class="otp-card">
+
+    <div class="brand-logo">
+      <svg width="48" height="48" viewBox="0 0 56 56" fill="none">
+        <path d="M28 4C16 10 14 20 22 28C30 20 28 10 28 4Z" fill="#1f5fa8" />
+        <path d="M28 52C28 38 22 28 10 24C10 38 16 48 28 52Z" fill="#0d7644" />
+        <path d="M28 52C28 38 34 28 46 24C46 38 40 48 28 52Z" fill="#e08a2e" />
+        <path d="M44 6l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6Z" fill="#f3a72e" />
+      </svg>
+      <span class="brand-text">
+        <strong>SHRIZA</strong>
+        <small>NATURALS</small>
+      </span>
+    </div>
+
+    <button class="back-link" (click)="backToLogin()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <path d="M19 12H5M11 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      Back to Login
+    </button>
+
+    <div class="otp-header-row">
+      <span class="otp-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="8" cy="15" r="4" stroke="#0d7644" stroke-width="1.8" />
+          <path d="M11 12l8-8M16 7l2 2M13 10l2 2" stroke="#0d7644" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
+      <h2>Verify Security Code</h2>
+    </div>
+
+    <p class="otp-desc">
+      We have simulated sending a 4-digit code to <strong>+91 {{ mobile || '98765 43210' }}</strong>. Please enter it below to verify your login session.
+    </p>
+
+    <div class="otp-boxes">
+      <input
+        *ngFor="let digit of digits; let i = index"
+        #digitInput
+        type="text"
+        inputmode="numeric"
+        maxlength="1"
+        class="otp-box"
+        [value]="digit"
+        (input)="onDigitInput(i, $event)"
+        (keydown)="onDigitKeydown(i, $event)">
+    </div>
+
+    <p class="resend-text">
+      <ng-container *ngIf="countdown > 0">
+        Resend OTP in <strong>{{ countdown }}s</strong>
+      </ng-container>
+      <a *ngIf="countdown === 0" (click)="resendOtp()">Resend OTP</a>
+    </p>
+
+    <button class="verify-btn" (click)="verifyAndProceed()">
+      Verify &amp; Proceed
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+  </div>
+
+</div>

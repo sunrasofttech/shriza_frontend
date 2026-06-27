@@ -1,0 +1,437 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:host {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  color: #1f3421;
+  background: #faf8f3;
+}
+
+/* TOPBAR */
+.checkout-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 48px 18px;
+  border-bottom: 1px solid #ece8de;
+  margin-bottom: 24px;
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #2b3a2c;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.steps {
+  display: flex;
+  gap: 24px;
+}
+
+.step {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #b9c2b8;
+}
+
+.step.active {
+  color: #0d7644;
+  text-decoration: underline;
+}
+
+/* BODY */
+.checkout-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 24px;
+  padding: 0 48px 56px;
+  align-items: flex-start;
+}
+
+.checkout-main {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.address-section h2,
+.delivery-option-section h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem;
+  margin: 0 0 18px;
+}
+
+.add-address-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #cfe6d3;
+  background: #eaf2e8;
+  color: #0d7644;
+  font-weight: 700;
+  font-size: 0.84rem;
+  padding: 9px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* ADDRESS CARDS */
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.address-card {
+  position: relative;
+  background: #fff;
+  border: 1.5px solid #e7ece4;
+  border-radius: 16px;
+  padding: 18px 20px;
+  cursor: pointer;
+}
+
+.address-card.selected {
+  border-color: #0d7644;
+}
+
+.address-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.address-type-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #eef3ea;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.address-card-head strong {
+  font-size: 0.92rem;
+}
+
+.default-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: #eaf2e8;
+  color: #0d7644;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.selected-check {
+  margin-left: auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0d7644;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.address-name {
+  margin: 0 0 4px;
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.address-lines {
+  margin: 0 0 6px;
+  font-size: 0.84rem;
+  color: #5a6b59;
+  line-height: 1.6;
+}
+
+.address-phone {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #8a978a;
+}
+
+/* ADD ADDRESS FORM */
+.add-address-form {
+  background: #fff;
+  border: 1px solid #e7ece4;
+  border-radius: 16px;
+  padding: 22px 24px;
+}
+
+.add-address-form h3 {
+  margin: 0 0 18px;
+  font-size: 1.05rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.form-field.full {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #6a786b;
+  margin-bottom: 8px;
+}
+
+.form-field input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #d8e3d6;
+  border-radius: 10px;
+  background: #f7f8f5;
+  padding: 0 14px;
+  font-size: 0.88rem;
+}
+
+.address-type-pills {
+  display: flex;
+  gap: 8px;
+}
+
+.address-type-pills button {
+  flex: 1;
+  border: 1px solid #d8e3d6;
+  background: #fff;
+  color: #2b3a2c;
+  font-size: 0.84rem;
+  font-weight: 600;
+  padding: 11px 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.address-type-pills button.active {
+  background: #0d7644;
+  border-color: #0d7644;
+  color: #fff;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.cancel-btn,
+.save-btn {
+  border-radius: 10px;
+  padding: 11px 22px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  border: 1px solid #d8e3d6;
+  background: #fff;
+  color: #2b3a2c;
+}
+
+.save-btn {
+  border: none;
+  background: #0d7644;
+  color: #fff;
+}
+
+/* DELIVERY OPTIONS */
+.delivery-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.delivery-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1.5px solid #e7ece4;
+  border-radius: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+}
+
+.delivery-option.selected {
+  border-color: #0d7644;
+  background: #f3f8f2;
+}
+
+.delivery-option strong {
+  display: block;
+  font-size: 0.92rem;
+  margin-bottom: 4px;
+}
+
+.delivery-option p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #8a978a;
+}
+
+.delivery-price {
+  font-weight: 700;
+  color: #2b3a2c;
+}
+
+.delivery-price.free {
+  color: #0d7644;
+}
+
+/* ORDER SUMMARY */
+.order-summary-card {
+  background: #fff;
+  border: 1px solid #e7ece4;
+  border-radius: 18px;
+  padding: 22px 24px;
+}
+
+.order-summary-card h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  margin: 0 0 18px;
+}
+
+.summary-item-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.86rem;
+  color: #2b3a2c;
+  margin-bottom: 16px;
+}
+
+.summary-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #ece8de;
+  margin-bottom: 16px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.86rem;
+  color: #4f5c4d;
+}
+
+.summary-row.discount strong {
+  color: #0d7644;
+}
+
+.summary-row .free {
+  color: #0d7644;
+}
+
+.summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: 14px;
+  border-top: 1px solid #ece8de;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.summary-total strong {
+  font-size: 1.15rem;
+  color: #0d7644;
+}
+
+.continue-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #0d7644;
+  border: none;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .checkout-topbar,
+  .checkout-body {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+}
+
+@media (max-width: 860px) {
+  .checkout-body {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .checkout-topbar {
+    padding: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .steps {
+    gap: 14px;
+    font-size: 0.8rem;
+  }
+
+  .checkout-body {
+    padding: 0 18px 40px;
+    gap: 18px;
+  }
+
+  .order-summary-card,
+  .add-address-form {
+    padding: 16px;
+  }
+
+  .address-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .delivery-option {
+    padding: 14px 16px;
+  }
+}

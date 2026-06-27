@@ -1,0 +1,192 @@
+<div class="checkout-topbar">
+  <a class="back-link" routerLink="/checkout">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    Back
+  </a>
+
+  <div class="steps">
+    <span class="step done">1. Delivery</span>
+    <span class="step active">2. Payment</span>
+    <span class="step">3. Confirmation</span>
+  </div>
+</div>
+
+<div class="checkout-body">
+  <div class="checkout-main">
+    <section class="payment-section">
+      <div class="section-head">
+        <h2>Select Payment Method</h2>
+        <span class="ssl-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <rect x="5" y="10" width="14" height="10" rx="2.2" stroke="#0d7644" stroke-width="1.6" />
+            <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="#0d7644" stroke-width="1.6" />
+          </svg>
+          256-bit Secure SSL
+        </span>
+      </div>
+
+      <div class="method-grid">
+        <button type="button" class="method-card" [class.active]="selectedMethod === 'upi'" (click)="selectMethod('upi')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect x="7" y="2" width="10" height="20" rx="2.4" stroke="currentColor" stroke-width="1.6" />
+            <path d="M11 18h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+          <span>UPI</span>
+        </button>
+
+        <button type="button" class="method-card" [class.active]="selectedMethod === 'cards'" (click)="selectMethod('cards')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect x="2.5" y="5" width="19" height="14" rx="2.2" stroke="currentColor" stroke-width="1.6" />
+            <path d="M2.5 9.5h19" stroke="currentColor" stroke-width="1.6" />
+          </svg>
+          <span>Cards</span>
+        </button>
+
+        <button type="button" class="method-card" [class.active]="selectedMethod === 'wallet'" (click)="selectMethod('wallet')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" stroke="currentColor" stroke-width="1.6" />
+            <circle cx="16.5" cy="13" r="1.4" fill="currentColor" />
+          </svg>
+          <span>Wallet</span>
+        </button>
+
+        <button type="button" class="method-card" [class.active]="selectedMethod === 'banking'" (click)="selectMethod('banking')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M3 10l9-6 9 6" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M5 10v9M10 10v9M14 10v9M19 10v9M3 19h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+          <span>Banking</span>
+        </button>
+
+        <button type="button" class="method-card cod-card" [class.active]="selectedMethod === 'cod'" (click)="selectMethod('cod')">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <rect x="2.5" y="6" width="19" height="12" rx="2.2" stroke="currentColor" stroke-width="1.6" />
+            <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.6" />
+          </svg>
+          <span>COD</span>
+        </button>
+      </div>
+
+      <!-- UPI PANEL -->
+      <div class="method-panel" *ngIf="selectedMethod === 'upi'">
+        <h3>Select UPI App</h3>
+        <div class="upi-app-grid">
+          <button type="button" *ngFor="let app of upiApps" [class.active]="selectedUpiApp === app" (click)="selectUpiApp(app)">
+            {{ app }}
+          </button>
+        </div>
+        <label class="field-label">Or Enter Custom UPI ID:</label>
+        <input type="text" placeholder="username@okaxis" [(ngModel)]="customUpiId" />
+      </div>
+
+      <!-- CARDS PANEL -->
+      <div class="method-panel" *ngIf="selectedMethod === 'cards'">
+        <h3>Enter Card Details</h3>
+        <div class="card-form-grid">
+          <div class="form-field full">
+            <label>Card Number</label>
+            <input type="text" placeholder="4111 2222 3333 4444" [(ngModel)]="card.number" />
+          </div>
+          <div class="form-field full">
+            <label>Cardholder Name</label>
+            <input type="text" placeholder="JOHN DOE" [(ngModel)]="card.name" />
+          </div>
+          <div class="form-field">
+            <label>Expiry Date</label>
+            <input type="text" placeholder="MM/YY" [(ngModel)]="card.expiry" />
+          </div>
+          <div class="form-field">
+            <label>CVV / CVC</label>
+            <input type="text" placeholder="***" [(ngModel)]="card.cvv" />
+          </div>
+        </div>
+      </div>
+
+      <!-- WALLET PANEL -->
+      <div class="method-panel" *ngIf="selectedMethod === 'wallet'">
+        <h3>Shriza Naturals Wallet</h3>
+        <div class="wallet-balance-card">
+          <div>
+            <span class="wallet-label">Available Balance</span>
+            <strong>₹{{ walletBalance }}</strong>
+            <span class="wallet-cashback">Includes ₹{{ walletCashback }} Cashback</span>
+          </div>
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+            <path d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" stroke="#0d7644" stroke-width="1.5" />
+            <circle cx="16.5" cy="13" r="1.4" fill="#0d7644" />
+          </svg>
+        </div>
+
+        <div class="insufficient-banner" *ngIf="walletShortfall > 0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z" stroke="#c0392b" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M12 8v4M12 15h.01" stroke="#c0392b" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+          <div class="insufficient-text">
+            <strong>Insufficient Wallet Balance</strong>
+            <p>You need ₹{{ walletShortfall | number: '1.2-2' }} more to complete this order.</p>
+            <button type="button" class="add-pay-btn">Add &amp; Pay ₹{{ walletShortfall | number: '1.2-2' }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- BANKING PANEL -->
+      <div class="method-panel" *ngIf="selectedMethod === 'banking'">
+        <h3>Select Popular Bank</h3>
+        <div class="bank-grid">
+          <button type="button" *ngFor="let bank of banks" [class.active]="selectedBank === bank" (click)="selectBank(bank)">
+            {{ bank }}
+          </button>
+        </div>
+      </div>
+
+      <!-- COD PANEL -->
+      <div class="method-panel cod-panel" *ngIf="selectedMethod === 'cod'">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+          <rect x="2.5" y="6" width="19" height="12" rx="2.2" stroke="#0d7644" stroke-width="1.5" />
+          <circle cx="12" cy="12" r="2.6" stroke="#0d7644" stroke-width="1.5" />
+        </svg>
+        <h3>Cash On Delivery (COD)</h3>
+        <p>Pay in cash or scan QR code when your shipment arrives. Additional ₹25 COD handling fee might apply for remote pin codes.</p>
+      </div>
+    </section>
+  </div>
+
+  <aside class="order-summary-card">
+    <h2>Order Summary</h2>
+    <div class="summary-rows">
+      <div class="summary-row">
+        <span>Subtotal:</span>
+        <strong>₹{{ cart.subtotal | number: '1.2-2' }}</strong>
+      </div>
+      <div class="summary-row discount">
+        <span>Discount:</span>
+        <strong>-₹{{ discountAmount }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>Shipping (Standard):</span>
+        <strong class="free">FREE</strong>
+      </div>
+      <div class="summary-row">
+        <span>Estimated Tax (5%):</span>
+        <strong>₹{{ taxAmount }}</strong>
+      </div>
+    </div>
+
+    <div class="summary-total">
+      <span>Total Amount:</span>
+      <strong>₹{{ total | number: '1.2-2' }}</strong>
+    </div>
+
+    <button type="button" class="pay-btn" (click)="payAndComplete()">
+      Pay &amp; Complete Order
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    <p class="terms-text">By clicking above, you agree to our terms of shipping and refund policy.</p>
+  </aside>
+</div>

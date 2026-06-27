@@ -1,0 +1,105 @@
+<section class="story-hero">
+  <span class="eyebrow">Our Philosophy</span>
+  <h1>Bridging Ancient Wisdom &amp; Clean Luxury</h1>
+  <p>Discover the story of Shriza Naturals, where hand-harvested organic botanicals meet modern scientific verification.</p>
+</section>
+
+<section class="origins-section">
+  <div class="origins-image">
+    <img [src]="heroImage" alt="Shriza Naturals herbal tea" />
+  </div>
+
+  <div class="origins-copy">
+    <h2>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+        <path d="M12 2C9 6 9 10 12 13C15 10 15 6 12 2Z" fill="#0d7644" />
+        <path d="M12 22C12 17 10 13 6 11C6 16 8 20 12 22Z" fill="#1f9d63" />
+        <path d="M12 22C12 17 14 13 18 11C18 16 16 20 12 22Z" fill="#0d7644" />
+      </svg>
+      Our Sourcing Origins
+    </h2>
+
+    <p>
+      Shriza Naturals was founded in the foothills of Rishikesh, born from a simple realization: modern wellness
+      products had lost touch with absolute botanical purity. Mass production had replaced organic, cold-pressed
+      slow extractions with quick synthetic solvents.
+    </p>
+    <p>
+      We chose to reverse this trend. Every single ingredient we use is ethically wildcrafted and harvested by local
+      farming cooperatives during their peak seasonal potency.
+    </p>
+
+    <div class="origins-badges">
+      <div class="origin-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3l7 3v6c0 5-3 8.5-7 9.5C8 20.5 5 17 5 12V6l7-3Z" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
+          <path d="M9 12.3l2 2 4-4.3" stroke="#0d7644" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div>
+          <strong>100% Traceable</strong>
+          <p>Know exactly where your herbs were harvested.</p>
+        </div>
+      </div>
+
+      <div class="origin-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="5" stroke="#0d7644" stroke-width="1.6" />
+          <path d="M8.5 12.5L7 21l5-2.5 5 2.5-1.5-8.5" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
+        </svg>
+        <div>
+          <strong>AYUSH Certified</strong>
+          <p>Approved under strict national standards.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sourcing-map-section">
+  <span class="eyebrow center">Socially Conscious</span>
+  <h2 class="center">Our Sourcing Map</h2>
+  <p class="section-sub center">We partner with single-origin fields across the subcontinent to bring you peak potency.</p>
+
+  <div class="sourcing-grid">
+    <article class="sourcing-card" *ngFor="let location of sourcingLocations">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M3 6l5-2 6 2 6-2v14l-6 2-6-2-5 2V6Z" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
+        <path d="M9 4.5v14M15 6.5v14" stroke="#0d7644" stroke-width="1.6" />
+      </svg>
+      <strong>{{ location.place }}</strong>
+      <span class="sourcing-ingredient">{{ location.ingredient | uppercase }}</span>
+      <p>{{ location.desc }}</p>
+    </article>
+  </div>
+</section>
+
+<section class="eco-section">
+  <span class="eyebrow center">Eco-Luxury</span>
+  <h2 class="center">Eco-Friendly Pledge</h2>
+  <p class="section-sub center">We believe healing ourselves shouldn't come at the cost of healing the planet.</p>
+
+  <div class="eco-grid">
+    <article class="eco-card" *ngFor="let pledge of ecoPledges">
+      <span class="eco-icon">
+        <svg *ngIf="pledge.icon === 'heart'" width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+            stroke="#0d7644"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <svg *ngIf="pledge.icon === 'sparkles'" width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3l1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6L12 3Z" stroke="#0d7644" stroke-width="1.4" stroke-linejoin="round" />
+          <path d="M19 14l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2Z" stroke="#0d7644" stroke-width="1.2" stroke-linejoin="round" />
+        </svg>
+        <svg *ngIf="pledge.icon === 'shield'" width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 3l7 3v6c0 5-3 8.5-7 9.5C8 20.5 5 17 5 12V6l7-3Z" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
+          <path d="M9 12.3l2 2 4-4.3" stroke="#0d7644" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
+      <strong>{{ pledge.title }}</strong>
+      <p>{{ pledge.desc }}</p>
+    </article>
+  </div>
+</section>

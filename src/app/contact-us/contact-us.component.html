@@ -1,0 +1,90 @@
+<section class="contact-header">
+  <span class="eyebrow">Connect With Us</span>
+  <h1>Get In Touch</h1>
+  <p>Have queries about our organic formulations or asthma relief churna? Reach out and our Ayurvedic expert will guide you.</p>
+</section>
+
+<div class="contact-body">
+  <div class="contact-left">
+    <div class="info-card-row">
+      <article class="info-card">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="5" width="18" height="14" rx="2.2" stroke="#0d7644" stroke-width="1.6" />
+          <path d="M4 7l8 6 8-6" stroke="#0d7644" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <strong>Email Support</strong>
+        <span class="email-value">support&#64;shrizanaturals.com</span>
+      </article>
+
+      <article class="info-card">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M7 3.5h3l1.5 4-2 1.5a12 12 0 0 0 5.5 5.5l1.5-2 4 1.5v3a1.5 1.5 0 0 1-1.6 1.5C12.5 18.2 5.8 11.5 5.5 5.1A1.5 1.5 0 0 1 7 3.5Z"
+            stroke="#0d7644"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <strong>Call Support</strong>
+        <span>+91 98765 43210</span>
+      </article>
+
+      <article class="info-card">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
+          <circle cx="12" cy="9" r="2.4" stroke="#0d7644" stroke-width="1.6" />
+        </svg>
+        <strong>Our Headquarters</strong>
+        <span>Hiranandani Estate, Thane, MH</span>
+      </article>
+    </div>
+
+    <div class="map-card">
+      <div class="map-pin-label">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
+          <circle cx="12" cy="9" r="2.4" stroke="#0d7644" stroke-width="1.6" />
+        </svg>
+        <div>
+          <strong>Shriza Laboratory</strong>
+          <span>Plot 24, Thane Biotech Hub</span>
+        </div>
+      </div>
+
+      <span class="map-caption">* Simulated Laboratory Map Location</span>
+    </div>
+  </div>
+
+  <div class="contact-form-card">
+    <h2>Send Us a Message</h2>
+
+    <form (ngSubmit)="sendMessage()">
+      <div class="form-field">
+        <label>Your Full Name</label>
+        <input type="text" placeholder="e.g. John Doe" [(ngModel)]="form.name" name="name" />
+      </div>
+
+      <div class="form-field">
+        <label>Email Address</label>
+        <input type="email" placeholder="name@example.com" [(ngModel)]="form.email" name="email" />
+      </div>
+
+      <div class="form-field">
+        <label>Subject</label>
+        <input type="text" placeholder="e.g. Query regarding Asthma Powder dosage" [(ngModel)]="form.subject" name="subject" />
+      </div>
+
+      <div class="form-field">
+        <label>Message</label>
+        <textarea rows="5" placeholder="Enter details..." [(ngModel)]="form.message" name="message"></textarea>
+      </div>
+
+      <button type="submit" class="send-btn">
+        Send Message
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M3 12.5l18-9-6 18-3.5-7.5L3 12.5Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </form>
+  </div>
+</div>

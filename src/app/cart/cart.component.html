@@ -1,0 +1,130 @@
+<section class="cart-header">
+  <h1>Shopping Cart</h1>
+</section>
+
+<div class="cart-body">
+  <div class="cart-card">
+    <div class="cart-card-header">
+      <span>{{ cart.items.length }} items selected</span>
+      <button type="button" class="clear-cart-btn" (click)="cart.clearCart()">Clear Cart</button>
+    </div>
+
+    <div class="cart-item-row" *ngFor="let item of cart.items">
+      <img class="cart-item-img" [src]="item.image" [alt]="item.name" />
+
+      <div class="cart-item-info">
+        <h3>{{ item.name }}</h3>
+        <span class="cart-item-size">Size: {{ item.size }}</span>
+        <div class="cart-item-text-actions">
+          <button type="button" (click)="saveForLater()">Save for later</button>
+          <button type="button" class="remove-text-btn" (click)="cart.removeItem(item.id)">Remove</button>
+        </div>
+      </div>
+
+      <div class="cart-item-qty">
+        <button type="button" (click)="cart.updateQuantity(item.id, item.quantity - 1)" aria-label="Decrease quantity">-</button>
+        <span>{{ item.quantity }}</span>
+        <button type="button" (click)="cart.updateQuantity(item.id, item.quantity + 1)" aria-label="Increase quantity">+</button>
+      </div>
+
+      <div class="cart-item-icon-actions">
+        <button type="button" (click)="saveForLater()" aria-label="Save for later">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+              stroke="#2b3a2c"
+              stroke-width="1.6"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+        <button type="button" (click)="cart.removeItem(item.id)" aria-label="Remove item">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m2 0-1 13a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 7" stroke="#c0392b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="cart-item-price">
+        <strong>₹{{ item.price * item.quantity | number: '1.0-0' }}</strong>
+        <span>₹{{ item.price | number: '1.0-0' }} each</span>
+      </div>
+    </div>
+
+    <div class="cart-empty" *ngIf="cart.items.length === 0">
+      <p>Your cart is empty.</p>
+      <a routerLink="/products">Continue Shopping</a>
+    </div>
+  </div>
+
+  <aside class="order-summary-card" *ngIf="cart.items.length > 0">
+    <h2>Order Summary</h2>
+
+    <div class="coupon-block">
+      <label class="block-label">Apply Promo Coupon</label>
+      <div class="coupon-input-row">
+        <div class="coupon-input">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <path d="M3 12.5V5a1 1 0 0 1 1-1h7.5a1 1 0 0 1 .7.3l9 9a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0l-9-9A1 1 0 0 1 3 12.5Z" stroke="#8a978a" stroke-width="1.5" stroke-linejoin="round" />
+            <circle cx="7.5" cy="7.5" r="1.2" fill="#8a978a" />
+          </svg>
+          <input type="text" placeholder="e.g. FIRSTORDER" [(ngModel)]="promoCode" />
+        </div>
+        <button type="button" (click)="applyCode(promoCode)">Apply</button>
+      </div>
+
+      <div class="available-coupons">
+        <span>Available Coupons (Click to apply):</span>
+        <div class="coupon-chips">
+          <button type="button" *ngFor="let code of availableCoupons" (click)="applyCode(code)">{{ code }}</button>
+        </div>
+      </div>
+
+      <div class="coupon-applied-banner" *ngIf="appliedCoupon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M3 12.5V5a1 1 0 0 1 1-1h7.5a1 1 0 0 1 .7.3l9 9a1 1 0 0 1 0 1.4l-7.5 7.5a1 1 0 0 1-1.4 0l-9-9A1 1 0 0 1 3 12.5Z" stroke="#0d7644" stroke-width="1.5" stroke-linejoin="round" />
+          <circle cx="7.5" cy="7.5" r="1.2" fill="#0d7644" />
+        </svg>
+        <span>Coupon Applied: {{ appliedCoupon }}</span>
+        <button type="button" class="remove-coupon-btn" (click)="removeCoupon()" aria-label="Remove coupon">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <path d="M6 6l12 12M18 6L6 18" stroke="#0d7644" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="summary-rows">
+      <div class="summary-row">
+        <span>Bag Subtotal:</span>
+        <strong>₹{{ subtotal | number: '1.2-2' }}</strong>
+      </div>
+      <div class="summary-row discount" *ngIf="appliedCoupon">
+        <span>Coupon Discount ({{ discountPercent }}%):</span>
+        <strong>-₹{{ discountAmount }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>Estimated Delivery Fee:</span>
+        <strong class="free">FREE</strong>
+      </div>
+      <div class="summary-row">
+        <span>Estimated Tax (5% GST):</span>
+        <strong>₹{{ taxAmount }}</strong>
+      </div>
+    </div>
+
+    <div class="summary-total">
+      <span>Total Payable:</span>
+      <strong>₹{{ total | number: '1.2-2' }}</strong>
+    </div>
+
+    <button type="button" class="checkout-btn" routerLink="/checkout">
+      Proceed to Checkout
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    <a class="continue-shopping" routerLink="/products">Continue Shopping</a>
+  </aside>
+</div>
