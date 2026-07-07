@@ -284,12 +284,24 @@ h2 {
   background: #fff;
   border: 1.5px solid #0d7644;
   color: #0d7644;
+  transition: background 0.2s, color 0.2s;
+}
+
+.add-cart-btn.cart-added {
+  background: #0d7644;
+  color: #fff;
 }
 
 .buy-now-btn {
   background: #0d7644;
   border: none;
   color: #fff;
+}
+
+.cart-err-msg {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: #c0392b;
 }
 
 /* SHARED SECTION PADDING */
@@ -788,4 +800,78 @@ h2 {
     width: 64px;
     height: 64px;
   }
+}
+
+/* ── Loading / Error states ─────────────────────────────────────────── */
+.detail-loading {
+  padding: 48px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.detail-skeleton {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position: 600px 0; }
+}
+
+.sk-main-img {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 18px;
+  background: linear-gradient(90deg, #e8ece6 25%, #f1f4ef 50%, #e8ece6 75%);
+  background-size: 1200px 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.sk-thumbs { display: flex; gap: 10px; margin-top: 12px; }
+
+.sk-thumb {
+  width: 72px; height: 72px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #e8ece6 25%, #f1f4ef 50%, #e8ece6 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.sk-info { display: flex; flex-direction: column; gap: 14px; padding-top: 12px; }
+
+.sk-line {
+  height: 16px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e8ece6 25%, #f1f4ef 50%, #e8ece6 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+.sk-line.short  { width: 30%; height: 12px; }
+.sk-line.medium { width: 70%; }
+
+.detail-error {
+  text-align: center;
+  padding: 80px 24px;
+  color: #5b6a5b;
+}
+
+.detail-error a {
+  color: #0d7644;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* ── Stock labels ───────────────────────────────────────────────────── */
+.stock.in-stock    { color: #0d7644; }
+.stock.low-stock   { color: #c9821f; }
+.stock.out-of-stock { color: #c0362b; }
+
+/* ── Unit label ─────────────────────────────────────────────────────── */
+.unit-label {
+  font-size: 0.9rem;
+  color: #5b6a5b;
+  margin-bottom: 20px;
 }

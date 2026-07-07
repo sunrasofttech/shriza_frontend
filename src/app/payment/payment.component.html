@@ -77,8 +77,8 @@
             {{ app }}
           </button>
         </div>
-        <label class="field-label">Or Enter Custom UPI ID:</label>
-        <input type="text" placeholder="username@okaxis" [(ngModel)]="customUpiId" />
+        <label class="field-label">Enter UPI ID: *</label>
+        <input type="text" placeholder="username@okaxis" [(ngModel)]="upiId" />
       </div>
 
       <!-- CARDS PANEL -->
@@ -110,8 +110,7 @@
         <div class="wallet-balance-card">
           <div>
             <span class="wallet-label">Available Balance</span>
-            <strong>₹{{ walletBalance }}</strong>
-            <span class="wallet-cashback">Includes ₹{{ walletCashback }} Cashback</span>
+            <strong>₹{{ walletBalance | number: '1.2-2' }}</strong>
           </div>
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
             <path d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" stroke="#0d7644" stroke-width="1.5" />
@@ -156,35 +155,50 @@
 
   <aside class="order-summary-card">
     <h2>Order Summary</h2>
-    <div class="summary-rows">
-      <div class="summary-row">
-        <span>Subtotal:</span>
-        <strong>₹{{ cart.subtotal | number: '1.2-2' }}</strong>
-      </div>
-      <div class="summary-row discount">
-        <span>Discount:</span>
-        <strong>-₹{{ discountAmount }}</strong>
-      </div>
-      <div class="summary-row">
-        <span>Shipping (Standard):</span>
-        <strong class="free">FREE</strong>
-      </div>
-      <div class="summary-row">
-        <span>Estimated Tax (5%):</span>
-        <strong>₹{{ taxAmount }}</strong>
-      </div>
-    </div>
 
-    <div class="summary-total">
-      <span>Total Amount:</span>
-      <strong>₹{{ total | number: '1.2-2' }}</strong>
-    </div>
+    <ng-container *ngIf="pricing">
+      <div class="summary-rows">
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <strong>₹{{ pricing.subtotal | number: '1.2-2' }}</strong>
+        </div>
+        <div class="summary-row discount" *ngIf="pricing.discountAmount > 0">
+          <span>Coupon Discount:</span>
+          <strong>−₹{{ pricing.discountAmount | number: '1.2-2' }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Shipping ({{ orderService.selectedDelivery | titlecase }}):</span>
+          <strong [class.free]="pricing.shippingFee === 0">
+            {{ pricing.shippingFee === 0 ? 'FREE' : '₹' + pricing.shippingFee }}
+          </strong>
+        </div>
+        <div class="summary-row">
+          <span>Estimated Tax (5% GST):</span>
+          <strong>₹{{ pricing.taxAmount | number: '1.2-2' }}</strong>
+        </div>
+      </div>
+      <div class="summary-total">
+        <span>Total Amount:</span>
+        <strong>₹{{ pricing.totalAmount | number: '1.2-2' }}</strong>
+      </div>
+    </ng-container>
 
-    <button type="button" class="pay-btn" (click)="payAndComplete()">
-      Pay &amp; Complete Order
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
+    <ng-container *ngIf="!pricing">
+      <div class="summary-rows">
+        <div class="summary-row"><span>Loading pricing…</span></div>
+      </div>
+    </ng-container>
+
+    <p class="pay-error" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+    <button type="button" class="pay-btn" (click)="payAndComplete()" [disabled]="loading || !pricing">
+      <ng-container *ngIf="!loading">
+        Pay &amp; Complete Order
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </ng-container>
+      <ng-container *ngIf="loading">Processing…</ng-container>
     </button>
 
     <p class="terms-text">By clicking above, you agree to our terms of shipping and refund policy.</p>

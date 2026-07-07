@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-verify-otp',
@@ -10,14 +11,19 @@ export class VerifyOtpComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChildren('digitInput') digitInputs!: QueryList<ElementRef<HTMLInputElement>>;
 
   mobile = '';
+  purpose: 'login' | 'register' = 'login';
   digits: string[] = ['', '', '', ''];
   countdown = 30;
+  loading = false;
+  errorMsg = '';
   private timer?: ReturnType<typeof setInterval>;
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private route: ActivatedRoute, private router: Router, private auth: AuthService) {}
 
   ngOnInit(): void {
     this.mobile = this.route.snapshot.queryParamMap.get('mobile') || '';
+    const p = this.route.snapshot.queryParamMap.get('purpose');
+    this.purpose = p === 'register' ? 'register' : 'login';
     this.startCountdown();
   }
 
@@ -26,54 +32,86 @@ export class VerifyOtpComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
+    if (this.timer) clearInterval(this.timer);
   }
 
   startCountdown(): void {
     this.countdown = 30;
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
+    if (this.timer) clearInterval(this.timer);
     this.timer = setInterval(() => {
-      if (this.countdown > 0) {
-        this.countdown--;
-      } else if (this.timer) {
-        clearInterval(this.timer);
-      }
+      if (this.countdown > 0) { this.countdown--; }
+      else if (this.timer) { clearInterval(this.timer); }
     }, 1000);
   }
 
-  onDigitInput(index: number, event: Event): void {
+  onDigitKeydown(index: number, event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
-    const value = input.value.replace(/[^0-9]/g, '').slice(-1);
-    this.digits[index] = value;
-    input.value = value;
+    const inputs = this.digitInputs.toArray();
 
-    if (value && index < this.digits.length - 1) {
-      this.digitInputs.toArray()[index + 1].nativeElement.focus();
+    if (event.key === 'Backspace') {
+      event.preventDefault();
+      this.digits[index] = '';
+      input.value = '';
+      if (index > 0) inputs[index - 1].nativeElement.focus();
+      return;
     }
+    if (event.key === 'ArrowLeft' && index > 0)  { inputs[index - 1].nativeElement.focus(); return; }
+    if (event.key === 'ArrowRight' && index < 3) { inputs[index + 1].nativeElement.focus(); return; }
+    if (!/^\d$/.test(event.key)) { event.preventDefault(); return; }
+
+    event.preventDefault();
+    this.digits[index] = event.key;
+    input.value = event.key;
+    if (index < this.digits.length - 1) inputs[index + 1].nativeElement.focus();
   }
 
-  onDigitKeydown(index: number, event: KeyboardEvent): void {
-    if (event.key === 'Backspace' && !this.digits[index] && index > 0) {
-      this.digitInputs.toArray()[index - 1].nativeElement.focus();
-    }
+  onDigitPaste(index: number, event: ClipboardEvent): void {
+    event.preventDefault();
+    const paste = (event.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 4);
+    if (!paste) return;
+    const inputs = this.digitInputs.toArray();
+    paste.split('').forEach((ch, i) => {
+      const pos = index + i;
+      if (pos < this.digits.length) { this.digits[pos] = ch; inputs[pos].nativeElement.value = ch; }
+    });
+    const nextFocus = Math.min(index + paste.length, this.digits.length - 1);
+    inputs[nextFocus].nativeElement.focus();
   }
 
   resendOtp(): void {
-    if (this.countdown > 0) {
-      return;
-    }
-    this.startCountdown();
+    if (this.countdown > 0 || this.loading) return;
+    this.errorMsg = '';
+    const resend$ = this.purpose === 'register'
+      ? this.auth.resendRegistrationOtp(this.mobile)
+      : this.auth.sendLoginOtp(this.mobile);
+    resend$.subscribe({
+      next: () => this.startCountdown(),
+      error: (err) => { this.errorMsg = err?.error?.message || 'Failed to resend OTP. Please try again.'; }
+    });
   }
 
   verifyAndProceed(): void {
-    if (this.digits.some((digit) => !digit)) {
+    // Re-read actual DOM values in case this.digits drifted out of sync
+    this.digitInputs.toArray().forEach((el, i) => {
+      this.digits[i] = el.nativeElement.value.replace(/\D/g, '').slice(-1);
+    });
+    if (this.digits.some(d => !d) || this.loading) {
+      this.errorMsg = 'Please fill in all 4 digits.';
       return;
     }
-    this.router.navigate(['/home']);
+    this.errorMsg = '';
+    this.loading = true;
+    const otp = this.digits.join('');
+    const verify$ = this.purpose === 'register'
+      ? this.auth.verifyPhone(this.mobile, otp)
+      : this.auth.verifyLoginOtp(this.mobile, otp);
+    verify$.subscribe({
+      next: () => { this.loading = false; this.router.navigate(['/home']); },
+      error: (err) => {
+        this.loading = false;
+        this.errorMsg = err?.error?.message || 'Invalid OTP. Please try again.';
+      }
+    });
   }
 
   backToLogin(): void {

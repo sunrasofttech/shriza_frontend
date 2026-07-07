@@ -194,6 +194,18 @@
   padding: 0 18px;
 }
 
+.input-box.input-error {
+  border-color: #e04a3f;
+  background: #fdf4f3;
+}
+
+.field-error {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.78rem;
+  color: #c0362b;
+}
+
 .input-box i {
   color: #727a75;
   font-size: 18px;

@@ -12,3 +12,23 @@ body {
 button {
   font-family: inherit;
 }
+
+.auth-error {
+  background: #fde8e7;
+  color: #c0362b;
+  font-size: 0.84rem;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.auth-success {
+  background: #e6f4ec;
+  color: #1a6b3c;
+  font-size: 0.84rem;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}

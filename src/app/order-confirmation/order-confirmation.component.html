@@ -1,4 +1,4 @@
-<div class="confirmation-wrap">
+<div class="confirmation-wrap" *ngIf="order">
   <span class="success-icon">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
       <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
@@ -6,7 +6,10 @@
   </span>
 
   <h1>Thank You for Your Order!</h1>
-  <p class="subtitle">Your payment has been cleared and your order is now in our system. A confirmation receipt has been sent to your email.</p>
+  <p class="subtitle">
+    Your order is confirmed and in our system.
+    A confirmation receipt has been sent to your registered email.
+  </p>
 
   <div class="order-card">
     <div class="order-top-row">
@@ -16,7 +19,7 @@
       </div>
       <div class="align-right">
         <span class="label">Amount Paid</span>
-        <strong class="amount">₹{{ order.totalAmount }}</strong>
+        <strong class="amount">₹{{ order.totalAmount | number: '1.2-2' }}</strong>
       </div>
     </div>
 
@@ -28,12 +31,12 @@
         </svg>
         <div>
           <strong>Expected Delivery</strong>
-          <p>{{ order.expectedDelivery }}</p>
-          <span class="courier">Via {{ order.courier }}</span>
+          <p>{{ order.expectedDeliveryDate }}</p>
+          <span class="courier">{{ order.paymentMethod | uppercase }} · {{ order.status | uppercase }}</span>
         </div>
       </div>
 
-      <div class="detail-block">
+      <div class="detail-block" *ngIf="address">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
           <path d="M7 3h8l4 4v14H5V3h2Z" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
           <path d="M9 11h6M9 15h6" stroke="#0d7644" stroke-width="1.6" stroke-linecap="round" />
@@ -41,23 +44,16 @@
         <div>
           <strong>Shipping Address</strong>
           <p>
-            {{ order.shippingAddress.name }}<br />
-            {{ order.shippingAddress.line1 }}<br />
-            {{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} - {{ order.shippingAddress.zip }}
+            {{ address.fullName }}<br />
+            {{ address.addressLine1 }}<br />
+            {{ address.city }}, {{ address.state }} - {{ address.pincode }}
           </p>
         </div>
       </div>
     </div>
 
     <div class="card-actions">
-      <button type="button" class="outline-btn">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-          <path d="M7 3h7l5 5v13H7V3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-          <path d="M9 12h6M9 16h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-        </svg>
-        Download Invoice PDF
-      </button>
-      <button type="button" class="outline-btn" routerLink="/order-details">
+      <button type="button" class="outline-btn" [routerLink]="['/order-details']" [queryParams]="{ order: order.orderNumber }">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
           <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
           <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" />
@@ -74,6 +70,6 @@
         <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
     </button>
-    <button type="button" class="continue-btn" routerLink="/products">Continue Shopping</button>
+    <button type="button" class="continue-btn" (click)="continueShopping()">Continue Shopping</button>
   </div>
 </div>

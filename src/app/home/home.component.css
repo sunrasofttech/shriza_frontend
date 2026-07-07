@@ -798,3 +798,29 @@ h2 {
     text-align: center;
   }
 }
+
+/* ── Loading / cart feedback ─────────────────────────────────────────────── */
+.skeleton-cat {
+  display: block;
+  width: 120px;
+  height: 140px;
+  background: linear-gradient(90deg, #e8ede5 25%, #f3f7f0 50%, #e8ede5 75%);
+  background-size: 200% 100%;
+  animation: skel-shine 1.2s ease-in-out infinite;
+  border-radius: 16px;
+}
+
+@keyframes skel-shine {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.cart-btn.cart-added {
+  background: #0d7644;
+  color: #fff;
+}
+
+.wishlist-btn.active svg path {
+  fill: #d6477b;
+  stroke: #d6477b;
+}

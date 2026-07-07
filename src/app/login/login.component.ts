@@ -1,12 +1,7 @@
 import { Component } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-login',
@@ -14,57 +9,69 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-
   activeTab: 'email' | 'mobile' = 'email';
-
   hidePassword = true;
+  loading = false;
+  errorMsg = '';
 
   loginForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private router: Router) {
-
+  constructor(private fb: FormBuilder, private router: Router, private auth: AuthService) {
     this.loginForm = this.fb.group({
       email: [''],
       mobile: [''],
-      password: ['', Validators.required]
+      password: ['']
     });
   }
 
-  switchTab(tab: 'email' | 'mobile') {
+  switchTab(tab: 'email' | 'mobile'): void {
     this.activeTab = tab;
+    this.errorMsg = '';
   }
 
-  login() {
+  login(): void {
+    this.errorMsg = '';
 
     if (this.activeTab === 'email') {
-
-      if (!this.loginForm.value.email) {
+      const { email, password } = this.loginForm.value;
+      if (!email || !password) {
+        this.errorMsg = 'Please enter your email and password.';
         return;
       }
-
-      console.log('Email Login', this.loginForm.value);
-
+      this.loading = true;
+      this.auth.login(email, password).subscribe({
+        next: () => { this.loading = false; this.router.navigate(['/home']); },
+        error: (err) => { this.loading = false; this.errorMsg = extractError(err); }
+      });
     } else {
-
-      if (!this.loginForm.value.mobile) {
+      const { mobile } = this.loginForm.value;
+      if (!mobile) {
+        this.errorMsg = 'Please enter your mobile number.';
         return;
       }
-
-      this.router.navigate(['/verify-otp'], {
-        queryParams: { mobile: this.loginForm.value.mobile }
+      this.loading = true;
+      this.auth.sendLoginOtp(mobile).subscribe({
+        next: () => {
+          this.loading = false;
+          this.router.navigate(['/verify-otp'], { queryParams: { mobile, purpose: 'login' } });
+        },
+        error: (err) => { this.loading = false; this.errorMsg = extractError(err); }
       });
     }
   }
 
-  loginWithGoogle() {
-    console.log('Google Login');
-  }
+  loginWithGoogle(): void {}
+  loginWithFacebook(): void {}
 
-  loginWithFacebook() {
-    console.log('Facebook Login');
+  continueAsGuest(): void {
+    this.router.navigate(['/home']);
   }
+}
 
-  continueAsGuest() {
-    console.log('Guest Login');
+function extractError(err: any): string {
+  const body = err?.error;
+  if (Array.isArray(body?.details) && body.details.length) {
+    return body.details[0].message;
   }
+  return body?.message || 'Something went wrong. Please try again.';
 }

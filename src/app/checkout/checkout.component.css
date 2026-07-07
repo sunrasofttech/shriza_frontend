@@ -435,3 +435,46 @@
     padding: 14px 16px;
   }
 }
+
+/* Checkout error */
+.checkout-err {
+  font-size: 0.78rem;
+  color: #c0392b;
+  margin: 0 0 10px;
+}
+
+/* Address form validation error */
+.addr-err {
+  margin: 10px 0 0;
+  padding: 8px 12px;
+  background: #fff5f5;
+  border: 1px solid #fcd2d2;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #c0392b;
+}
+
+/* Address skeleton */
+.skeleton-addr {
+  height: 110px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #e8ede6 25%, #f2f5f0 50%, #e8ede6 75%);
+  background-size: 600px 100%;
+  animation: shimmer-addr 1.4s infinite linear;
+}
+
+@keyframes shimmer-addr {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+/* No addresses placeholder */
+.no-addresses {
+  grid-column: 1 / -1;
+  padding: 24px;
+  text-align: center;
+  color: #6a786b;
+  font-size: 0.88rem;
+  border: 1px dashed #c8d8c4;
+  border-radius: 14px;
+}

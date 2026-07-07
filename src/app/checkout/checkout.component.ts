@@ -1,125 +1,135 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { CartService } from '../cart.service';
-
-interface Address {
-  id: string;
-  label: string;
-  isDefault: boolean;
-  name: string;
-  line1: string;
-  city: string;
-  state: string;
-  zip: string;
-  phone: string;
-}
-
-interface DeliveryOption {
-  id: string;
-  label: string;
-  eta: string;
-  price: number;
-}
+import { OrderService, UserAddress } from '../order.service';
 
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css']
 })
-export class CheckoutComponent {
-  constructor(public cart: CartService) {}
+export class CheckoutComponent implements OnInit {
+  addresses: UserAddress[] = [];
+  addrLoading = false;
+  summaryLoading = false;
+  continueError = '';   // shown near the "Continue to Payment" button
+  addressError = '';    // shown inside the add-address form
 
-  addresses: Address[] = [
-    {
-      id: 'home',
-      label: 'Home',
-      isDefault: true,
-      name: 'John Doe',
-      line1: 'Flat 402, Green Meadows, Sector 15, Vashi',
-      city: 'Navi Mumbai',
-      state: 'Maharashtra',
-      zip: '400703',
-      phone: '9876543210'
-    },
-    {
-      id: 'work',
-      label: 'Work',
-      isDefault: false,
-      name: 'John Doe',
-      line1: '9th Floor, Tech Hub, Mindspace IT Park',
-      city: 'Hyderabad',
-      state: 'Telangana',
-      zip: '500081',
-      phone: '9876543210'
-    }
-  ];
-
-  selectedAddressId = 'home';
+  // Add address form
   addingAddress = false;
+  savingAddress = false;
+  newAddress = { label: 'Home', fullName: '', phone: '', addressLine1: '', city: '', state: '', pincode: '' };
 
-  newAddress = {
-    name: '',
-    mobile: '',
-    line1: '',
-    city: '',
-    state: '',
-    zip: '',
-    type: 'Home'
-  };
-
-  deliveryOptions: DeliveryOption[] = [
-    { id: 'standard', label: 'Standard Delivery', eta: '5-6 business days', price: 0 },
-    { id: 'express', label: 'Express Delivery', eta: '2 business days', price: 150 }
+  deliveryOptions = [
+    { id: 'standard' as const, label: 'Standard Delivery', eta: '5-6 business days' },
+    { id: 'express'  as const, label: 'Express Delivery',  eta: '2 business days'   },
   ];
 
-  selectedDeliveryId = 'standard';
+  constructor(
+    public cart: CartService,
+    public orderService: OrderService,
+    private router: Router
+  ) {}
 
-  get discountAmount(): number {
-    return Math.round(this.cart.subtotal * 0.15);
+  ngOnInit(): void {
+    this.loadAddresses();
+    this.loadSummary(this.orderService.selectedDelivery);
   }
 
-  get shippingCost(): number {
-    return this.deliveryOptions.find((option) => option.id === this.selectedDeliveryId)?.price ?? 0;
+  get pricing() { return this.orderService.pricing; }
+  get selectedAddressId() { return this.orderService.selectedAddressId; }
+  get selectedDelivery() { return this.orderService.selectedDelivery; }
+
+  // ── Addresses ──────────────────────────────────────────────────────────────
+
+  private loadAddresses(): void {
+    this.addrLoading = true;
+    this.orderService.fetchAddresses().subscribe({
+      next: (list) => {
+        this.addresses = list;
+        this.addrLoading = false;
+        // Auto-select default address
+        if (!this.orderService.selectedAddressId) {
+          const def = list.find(a => a.isDefault) || list[0];
+          if (def) this.selectAddress(def);
+        }
+      },
+      error: () => { this.addrLoading = false; }
+    });
   }
 
-  get taxAmount(): number {
-    return Math.round((this.cart.subtotal - this.discountAmount) * 0.05);
+  selectAddress(addr: UserAddress): void {
+    this.orderService.selectedAddressId = addr.id;
+    this.orderService.selectedAddress = addr;
   }
 
-  get total(): number {
-    return this.cart.subtotal - this.discountAmount + this.taxAmount + this.shippingCost;
+  isSelected(addr: UserAddress): boolean {
+    return this.orderService.selectedAddressId === addr.id;
   }
 
-  selectAddress(id: string): void {
-    this.selectedAddressId = id;
-  }
+  // ── Add Address Form ───────────────────────────────────────────────────────
 
   toggleAddAddress(): void {
     this.addingAddress = !this.addingAddress;
+    this.addressError = '';
+    if (!this.addingAddress) {
+      this.newAddress = { label: 'Home', fullName: '', phone: '', addressLine1: '', city: '', state: '', pincode: '' };
+    }
   }
 
-  setNewAddressType(type: string): void {
-    this.newAddress.type = type;
-  }
+  setAddressLabel(label: string): void { this.newAddress.label = label; }
 
   saveAddress(): void {
-    const id = `addr-${this.addresses.length + 1}`;
-    this.addresses.push({
-      id,
-      label: this.newAddress.type,
-      isDefault: false,
-      name: this.newAddress.name || 'John Doe',
-      line1: this.newAddress.line1,
-      city: this.newAddress.city,
-      state: this.newAddress.state,
-      zip: this.newAddress.zip,
-      phone: this.newAddress.mobile
+    if (!this.newAddress.fullName || !this.newAddress.addressLine1 || !this.newAddress.city || !this.newAddress.pincode) {
+      this.addressError = 'Please fill in all required fields (Name, Street Address, City, Pincode).';
+      return;
+    }
+    this.savingAddress = true;
+    this.addressError = '';
+    this.orderService.addAddress(this.newAddress).subscribe({
+      next: (addr) => {
+        this.addresses.push(addr);
+        this.selectAddress(addr);
+        this.addingAddress = false;
+        this.savingAddress = false;
+        this.addressError = '';
+        this.newAddress = { label: 'Home', fullName: '', phone: '', addressLine1: '', city: '', state: '', pincode: '' };
+      },
+      error: (err) => {
+        // Surface field-level validation messages (e.g. "Street address must be 5–255 characters")
+        const details: { field: string; message: string }[] = err?.error?.details || [];
+        this.addressError = details.length
+          ? details.map(d => d.message).join(' · ')
+          : (err?.error?.message || 'Could not save address. Please try again.');
+        this.savingAddress = false;
+      }
     });
-    this.selectedAddressId = id;
-    this.addingAddress = false;
-    this.newAddress = { name: '', mobile: '', line1: '', city: '', state: '', zip: '', type: 'Home' };
   }
 
-  selectDelivery(id: string): void {
-    this.selectedDeliveryId = id;
+  // ── Delivery ───────────────────────────────────────────────────────────────
+
+  selectDelivery(id: 'standard' | 'express'): void {
+    if (this.orderService.selectedDelivery === id) return;
+    this.orderService.selectedDelivery = id;
+    this.loadSummary(id);
+  }
+
+  private loadSummary(delivery: 'standard' | 'express'): void {
+    this.summaryLoading = true;
+    this.orderService.fetchCheckoutSummary(delivery).subscribe({
+      next: () => { this.summaryLoading = false; },
+      error: () => { this.summaryLoading = false; }
+    });
+  }
+
+  // ── Navigate ───────────────────────────────────────────────────────────────
+
+  continueToPayment(): void {
+    if (!this.orderService.selectedAddressId) {
+      this.continueError = 'Please select a delivery address.';
+      return;
+    }
+    this.continueError = '';
+    this.router.navigate(['/checkout/payment']);
   }
 }

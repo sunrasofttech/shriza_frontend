@@ -13,7 +13,7 @@
           <path d="M4 7l8 6 8-6" stroke="#0d7644" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         <strong>Email Support</strong>
-        <span class="email-value">support&#64;shrizanaturals.com</span>
+        <a [href]="'mailto:' + email" class="email-value">{{ email }}</a>
       </article>
 
       <article class="info-card">
@@ -26,7 +26,7 @@
           />
         </svg>
         <strong>Call Support</strong>
-        <span>+91 98765 43210</span>
+        <a [href]="'tel:' + phone">{{ phone }}</a>
       </article>
 
       <article class="info-card">
@@ -34,11 +34,12 @@
           <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
           <circle cx="12" cy="9" r="2.4" stroke="#0d7644" stroke-width="1.6" />
         </svg>
-        <strong>Our Headquarters</strong>
-        <span>Hiranandani Estate, Thane, MH</span>
+        <strong>{{ contactInfo?.headquarters?.label || 'Our Headquarters' }}</strong>
+        <span>{{ hqAddress }}</span>
       </article>
     </div>
 
+    <!-- Map card — always visible; populated from API when available -->
     <div class="map-card">
       <div class="map-pin-label">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -46,42 +47,105 @@
           <circle cx="12" cy="9" r="2.4" stroke="#0d7644" stroke-width="1.6" />
         </svg>
         <div>
-          <strong>Shriza Laboratory</strong>
-          <span>Plot 24, Thane Biotech Hub</span>
+          <strong>{{ contactInfo?.lab?.name || 'Shriza Laboratory' }}</strong>
+          <span *ngIf="contactInfo?.lab?.address">{{ contactInfo!.lab!.address }}</span>
+          <span *ngIf="!contactInfo?.lab?.address && infoLoading" class="map-loading">Loading…</span>
+          <span *ngIf="!contactInfo?.lab?.address && !infoLoading">Plot 24, Thane Biotech Hub</span>
         </div>
       </div>
 
-      <span class="map-caption">* Simulated Laboratory Map Location</span>
+      <!-- Real embed when API provides map URL -->
+      <iframe
+        *ngIf="contactInfo?.lab?.mapEmbedUrl"
+        [src]="contactInfo!.lab!.mapEmbedUrl"
+        class="map-embed"
+        loading="lazy"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+
+      <!-- Social links inside map card, below the pin label -->
+      <div class="social-row" *ngIf="contactInfo?.social && (contactInfo!.social.instagram || contactInfo!.social.facebook || contactInfo!.social.whatsapp || contactInfo!.social.twitter)">
+        <a *ngIf="contactInfo!.social.whatsapp" [href]="contactInfo!.social.whatsapp" target="_blank" rel="noopener" class="social-link whatsapp" aria-label="WhatsApp">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M20.5 3.5A12 12 0 0 0 3.5 20.5L2 22l1.6-.5A12 12 0 1 0 20.5 3.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M9 9c0 5.5 5.5 9 6 8 0-.5-1-2-1-2l-1.5.5S10 14 10 12l.5-1.5S9.5 9.5 9 9Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+          </svg>
+          WhatsApp
+        </a>
+        <a *ngIf="contactInfo!.social.instagram" [href]="contactInfo!.social.instagram" target="_blank" rel="noopener" class="social-link instagram" aria-label="Instagram">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.6" />
+            <circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.6" />
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" />
+          </svg>
+          Instagram
+        </a>
+        <a *ngIf="contactInfo!.social.facebook" [href]="contactInfo!.social.facebook" target="_blank" rel="noopener" class="social-link facebook" aria-label="Facebook">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          </svg>
+          Facebook
+        </a>
+        <a *ngIf="contactInfo!.social.twitter" [href]="contactInfo!.social.twitter" target="_blank" rel="noopener" class="social-link twitter" aria-label="Twitter / X">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M4 4l16 16M4 20 20 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+          Twitter / X
+        </a>
+      </div>
+
+      <span class="map-caption">* Laboratory Location</span>
     </div>
   </div>
 
   <div class="contact-form-card">
     <h2>Send Us a Message</h2>
 
-    <form (ngSubmit)="sendMessage()">
-      <div class="form-field">
+    <!-- Success banner -->
+    <div class="contact-success" *ngIf="success">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="9" stroke="#0d7644" stroke-width="1.6" />
+        <path d="M8 12l3 3 5-5" stroke="#0d7644" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <div>
+        <strong>Message sent!</strong>
+        <p>We'll get back to you within 24 hours.</p>
+      </div>
+      <button type="button" class="send-another-btn" (click)="resetSuccess()">Send another</button>
+    </div>
+
+    <form (ngSubmit)="sendMessage()" *ngIf="!success">
+      <div class="form-field" [class.has-error]="fieldErrors['name']">
         <label>Your Full Name</label>
         <input type="text" placeholder="e.g. John Doe" [(ngModel)]="form.name" name="name" />
+        <p class="field-err" *ngIf="fieldErrors['name']">{{ fieldErrors['name'] }}</p>
       </div>
 
-      <div class="form-field">
+      <div class="form-field" [class.has-error]="fieldErrors['email']">
         <label>Email Address</label>
         <input type="email" placeholder="name@example.com" [(ngModel)]="form.email" name="email" />
+        <p class="field-err" *ngIf="fieldErrors['email']">{{ fieldErrors['email'] }}</p>
       </div>
 
-      <div class="form-field">
+      <div class="form-field" [class.has-error]="fieldErrors['subject']">
         <label>Subject</label>
         <input type="text" placeholder="e.g. Query regarding Asthma Powder dosage" [(ngModel)]="form.subject" name="subject" />
+        <p class="field-err" *ngIf="fieldErrors['subject']">{{ fieldErrors['subject'] }}</p>
       </div>
 
-      <div class="form-field">
+      <div class="form-field" [class.has-error]="fieldErrors['message']">
         <label>Message</label>
         <textarea rows="5" placeholder="Enter details..." [(ngModel)]="form.message" name="message"></textarea>
+        <p class="field-err" *ngIf="fieldErrors['message']">{{ fieldErrors['message'] }}</p>
       </div>
 
-      <button type="submit" class="send-btn">
-        Send Message
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+      <!-- General error -->
+      <p class="contact-err" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+      <button type="submit" class="send-btn" [disabled]="sending">
+        {{ sending ? 'Sending…' : 'Send Message' }}
+        <svg *ngIf="!sending" width="15" height="15" viewBox="0 0 24 24" fill="none">
           <path d="M3 12.5l18-9-6 18-3.5-7.5L3 12.5Z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" />
         </svg>
       </button>

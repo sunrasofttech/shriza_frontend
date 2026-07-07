@@ -1,6 +1,11 @@
 <section class="listing-header">
   <h1>All Wellness Products</h1>
-  <p>Showing <strong>{{ filteredProducts.length }}</strong> of {{ totalCatalogCount }} natural formulations</p>
+  <p>
+    <ng-container *ngIf="!loading">
+      Showing <strong>{{ products.length }}</strong> of <strong>{{ pagination.total }}</strong> natural formulations
+    </ng-container>
+    <ng-container *ngIf="loading">Loading products…</ng-container>
+  </p>
 </section>
 
 <div class="listing-toolbar">
@@ -32,7 +37,17 @@
       <path d="M7 4v14M7 18l-3-3M7 18l3-3M17 20V6M17 6l-3 3M17 6l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
     <select [ngModel]="sortBy" (ngModelChange)="setSort($event)">
-      <option *ngFor="let option of sortOptions" [value]="option.value">{{ option.label }}</option>
+      <ng-container *ngIf="filterMeta; else defaultSortOptions">
+        <option *ngFor="let opt of filterMeta.sortOptions" [value]="opt.value">{{ opt.label }}</option>
+      </ng-container>
+      <ng-template #defaultSortOptions>
+        <option value="newest">Newest First</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+        <option value="top_rated">Top Rated</option>
+        <option value="popular">Most Popular</option>
+        <option value="discount">Highest Discount</option>
+      </ng-template>
     </select>
   </div>
 </div>
@@ -55,20 +70,26 @@
     <div class="filters-scroll">
       <div class="filter-block">
         <label class="filter-label">Filter by Keyword</label>
-        <input type="text" placeholder="Search..." [(ngModel)]="keyword" />
+        <input type="text" placeholder="Search products…" [(ngModel)]="keyword" (ngModelChange)="onKeywordChange()" />
       </div>
 
       <div class="filter-block">
         <h4>Category</h4>
-        <ul class="category-list">
+        <ul class="category-list" *ngIf="filterMeta; else catSkeleton">
           <li
-            *ngFor="let category of categories"
-            [class.active]="isCategorySelected(category)"
-            (click)="toggleCategory(category)"
+            *ngFor="let cat of filterMeta.categories"
+            [class.active]="isCategorySelected(cat.slug)"
+            (click)="toggleCategory(cat.slug)"
           >
-            {{ category }}
+            {{ cat.name }}
+            <span class="cat-count">{{ cat.productCount }}</span>
           </li>
         </ul>
+        <ng-template #catSkeleton>
+          <ul class="category-list">
+            <li *ngFor="let _ of [1,2,3,4,5]" class="skeleton-line"></li>
+          </ul>
+        </ng-template>
       </div>
 
       <div class="filter-block">
@@ -91,20 +112,40 @@
 
       <div class="filter-block">
         <h4>Minimum Rating</h4>
-        <button
-          type="button"
-          class="rating-pill"
-          *ngFor="let option of ratingOptions"
-          [class.active]="minRating === option.value"
-          (click)="setMinRating(option.value)"
-        >
-          <span class="stars">
-            <svg *ngFor="let s of stars(option.stars)" width="14" height="14" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
-              <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
-            </svg>
-          </span>
-          <span>&amp; Up ({{ option.value }})</span>
-        </button>
+        <ng-container *ngIf="filterMeta; else defaultRating">
+          <button
+            type="button"
+            class="rating-pill"
+            *ngFor="let opt of filterMeta.ratingOptions"
+            [class.active]="minRating === opt.value"
+            (click)="setMinRating(opt.value)"
+          >
+            <span class="stars">
+              <svg *ngFor="let s of stars(opt.value)" width="14" height="14" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+                <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
+              </svg>
+            </span>
+            <span>{{ opt.label }}</span>
+          </button>
+        </ng-container>
+        <ng-template #defaultRating>
+          <button type="button" class="rating-pill" [class.active]="minRating === 4.5" (click)="setMinRating(4.5)">
+            <span class="stars">
+              <svg *ngFor="let s of [1,1,1,1,0]" width="14" height="14" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+                <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
+              </svg>
+            </span>
+            <span>4.5 &amp; Up</span>
+          </button>
+          <button type="button" class="rating-pill" [class.active]="minRating === 4" (click)="setMinRating(4)">
+            <span class="stars">
+              <svg *ngFor="let s of [1,1,1,1,0]" width="14" height="14" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+                <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
+              </svg>
+            </span>
+            <span>4 &amp; Up</span>
+          </button>
+        </ng-template>
       </div>
 
       <div class="filter-block stock-block">
@@ -117,60 +158,151 @@
 
     <div class="filters-footer">
       <button type="button" class="clear-btn" (click)="clearFilters()">Clear</button>
-      <button type="button" class="apply-btn" (click)="closeFilters()">Apply Filters</button>
+      <button type="button" class="apply-btn" (click)="applyFilters()">Apply Filters</button>
     </div>
   </aside>
 
-  <div class="products-grid" [class.list-view]="viewMode === 'list'">
-    <article class="product-card" *ngFor="let product of filteredProducts">
-      <div class="product-media">
-        <span class="badge" [class.orange]="product.badgeTone === 'orange'">{{ product.badge }}</span>
-        <button type="button" class="wishlist-btn" aria-label="Add to wishlist">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
-              stroke="#2b3a2c"
-              stroke-width="1.6"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-        <a [routerLink]="['/product', product.id]">
-          <img [src]="product.image" [alt]="product.name" />
-        </a>
-      </div>
-      <div class="product-info">
-        <span class="product-category">{{ product.category | uppercase }}</span>
-        <h3><a [routerLink]="['/product', product.id]">{{ product.name }}</a></h3>
-        <div class="product-rating">
-          <span class="stars">
-            <svg *ngFor="let s of stars(product.rating)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
-              <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
-            </svg>
-          </span>
-          <span class="rating-text">{{ product.rating }} ({{ product.reviews }})</span>
+  <div class="products-area">
+    <!-- Loading skeleton -->
+    <div class="products-grid" *ngIf="loading">
+      <article class="product-card skeleton-card" *ngFor="let _ of [1,2,3,4,5,6,7,8,9,10,11,12]">
+        <div class="skeleton-img"></div>
+        <div class="product-info">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line medium"></div>
         </div>
-        <div class="product-bottom">
-          <div class="price-block">
-            <div class="price-line">
-              <strong>₹{{ product.price }}</strong>
-              <s>₹{{ product.oldPrice }}</s>
-            </div>
-            <span class="size-text">{{ product.size }}</span>
-          </div>
-          <div class="product-actions">
-            <button type="button" class="buy-btn">Buy Now</button>
-            <button type="button" class="cart-btn" aria-label="Add to cart">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
-                <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    </article>
+      </article>
+    </div>
 
-    <p class="no-results" *ngIf="filteredProducts.length === 0">No products match your filters.</p>
+    <!-- Products grid -->
+    <div class="products-grid" [class.list-view]="viewMode === 'list'" *ngIf="!loading">
+      <article class="product-card" *ngFor="let product of products">
+        <div class="product-media">
+          <span class="badge" *ngIf="badgeText(product)" [class.orange]="badgeTone(product) === 'orange'">
+            {{ badgeText(product) }}
+          </span>
+          <button
+            type="button"
+            class="wishlist-btn"
+            [class.active]="wishlistIds.has(product.id)"
+            [disabled]="wishlistTogglingId === product.id"
+            (click)="toggleWishlist(product)"
+            aria-label="Add to wishlist"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" [attr.fill]="wishlistIds.has(product.id) ? '#d6477b' : 'none'">
+              <path
+                d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+                [attr.stroke]="wishlistIds.has(product.id) ? '#d6477b' : '#2b3a2c'"
+                stroke-width="1.6"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <a [routerLink]="['/product', product.slug]">
+            <img [src]="productImage(product)" [alt]="product.name" loading="lazy" />
+          </a>
+        </div>
+        <div class="product-info">
+          <span class="product-category">{{ product.category.name | uppercase }}</span>
+          <h3><a [routerLink]="['/product', product.slug]">{{ product.name }}</a></h3>
+          <div class="product-rating">
+            <span class="stars">
+              <svg *ngFor="let s of stars(product.rating.avg)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+                <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
+              </svg>
+            </span>
+            <span class="rating-text">{{ product.rating.avg | number:'1.1-1' }} ({{ product.rating.count }})</span>
+          </div>
+          <div class="product-bottom">
+            <div class="price-block">
+              <div class="price-line">
+                <strong>₹{{ product.pricing.sellingPrice }}</strong>
+                <s *ngIf="product.pricing.mrp > product.pricing.sellingPrice">₹{{ product.pricing.mrp }}</s>
+              </div>
+              <span class="size-text" *ngIf="product.unitLabel">{{ product.unitLabel }}</span>
+            </div>
+            <div class="product-actions">
+              <button
+                type="button"
+                class="buy-btn"
+                [disabled]="!product.stock.isInStock || addingCartId === product.id"
+                (click)="buyNow(product)"
+              >
+                <ng-container *ngIf="addingCartId === product.id; else buyLabel">…</ng-container>
+                <ng-template #buyLabel>{{ product.stock.isInStock ? 'Buy Now' : 'Out of Stock' }}</ng-template>
+              </button>
+              <button
+                type="button"
+                class="cart-btn"
+                [disabled]="!product.stock.isInStock || addingCartId === product.id"
+                [class.cart-added]="addedCartId === product.id"
+                (click)="addToCart(product)"
+                aria-label="Add to cart"
+              >
+                <svg *ngIf="addedCartId !== product.id" width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 4h2l2.2 11.4a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 2-1.6L20 8H6.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                  <circle cx="9.5" cy="20" r="1.3" fill="currentColor" />
+                  <circle cx="17" cy="20" r="1.3" fill="currentColor" />
+                </svg>
+                <svg *ngIf="addedCartId === product.id" width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 12l5 5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <p class="no-results" *ngIf="products.length === 0 && !loading">
+        No products match your filters. <a (click)="clearFilters()">Clear filters</a>
+      </p>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="!loading && pagination.totalPages > 1">
+      <button
+        class="page-btn"
+        [disabled]="!pagination.hasPrevPage"
+        (click)="goToPage(pagination.page - 1)"
+        aria-label="Previous page"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+
+      <button
+        *ngIf="pagination.page > 3"
+        class="page-btn"
+        (click)="goToPage(1)"
+      >1</button>
+      <span *ngIf="pagination.page > 4" class="page-ellipsis">…</span>
+
+      <button
+        *ngFor="let p of getPageRange()"
+        class="page-btn"
+        [class.active]="p === pagination.page"
+        (click)="goToPage(p)"
+      >{{ p }}</button>
+
+      <span *ngIf="pagination.page < pagination.totalPages - 3" class="page-ellipsis">…</span>
+      <button
+        *ngIf="pagination.page < pagination.totalPages - 2"
+        class="page-btn"
+        (click)="goToPage(pagination.totalPages)"
+      >{{ pagination.totalPages }}</button>
+
+      <button
+        class="page-btn"
+        [disabled]="!pagination.hasNextPage"
+        (click)="goToPage(pagination.page + 1)"
+        aria-label="Next page"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+          <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
   </div>
 </div>

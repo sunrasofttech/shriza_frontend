@@ -1,17 +1,21 @@
-import { Component, ElementRef, HostListener } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { CartService } from '../cart.service';
+import { NotificationService, UserNotification } from '../notification.service';
+import { AuthService, AuthUser } from '../auth.service';
+import { ProductService, ProductCategory } from '../product.service';
 
-interface Category {
-  name: string;
-  slug: string;
-}
+type NotifTag = 'Order' | 'Offer' | 'Promotion';
 
 interface NavNotification {
-  tag: 'Order' | 'Offer' | 'Promotion';
+  id: string;
+  tag: NotifTag;
   title: string;
   date: string;
   desc: string;
-  read: boolean;
+  isRead: boolean;
 }
 
 @Component({
@@ -19,55 +23,85 @@ interface NavNotification {
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit, OnDestroy {
   isDropdownOpen = false;
   isMobileMenuOpen = false;
   isNotificationsOpen = false;
   isAccountMenuOpen = false;
+  previewLoaded = false;
 
-  account = {
-    id: '34214124132',
-    email: '34214124132@shriza.com',
-    walletBalance: 500
-  };
+  // ── Live user from AuthService ────────────────────────────────────────────
+  user: AuthUser | null = null;
 
-  categories: Category[] = [
-    { name: 'Asthma Care', slug: 'asthma-care' },
-    { name: 'Herbal Care', slug: 'herbal-care' },
-    { name: 'Skin Care', slug: 'skin-care' },
-    { name: 'Hair Care', slug: 'hair-care' },
-    { name: 'Wellness', slug: 'wellness' }
-  ];
+  // ── Live categories from ProductService ───────────────────────────────────
+  categories: ProductCategory[] = [];
 
-  notifications: NavNotification[] = [
-    {
-      tag: 'Order',
-      title: 'Order Placed Successfully',
-      date: '2026-06-23',
-      desc: "Your order SHZ-20260623-9573 has been successfully received. We will notify you once",
-      read: true
-    },
-    {
-      tag: 'Offer',
-      title: 'Welcome to Shriza Naturals!',
-      date: '2026-06-20',
-      desc: 'Explore our range of premium Ayurvedic and wellness products. Use coupon FIRSTORDER for',
-      read: false
-    },
-    {
-      tag: 'Promotion',
-      title: 'Referral Bonus Active',
-      date: '2026-06-21',
-      desc: 'Share your referral code SHRIZA99 with friends and get ₹100 when they place their first order!',
-      read: false
-    }
-  ];
+  // ── Notifications ─────────────────────────────────────────────────────────
+  notifications: NavNotification[] = [];
+  notifLoading = false;
 
-  get unreadCount(): number {
-    return this.notifications.filter((notification) => !notification.read).length;
+  // ── Search ────────────────────────────────────────────────────────────────
+  searchKeyword = '';
+
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private elementRef: ElementRef,
+    private router: Router,
+    public cartService: CartService,
+    public notifService: NotificationService,
+    public authService: AuthService,
+    private productService: ProductService
+  ) {}
+
+  ngOnInit(): void {
+    // Track logged-in user reactively
+    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe(u => {
+      this.user = u;
+    });
+
+    // Fetch profile (silent — no error shown in navbar)
+    this.authService.fetchMe().subscribe({ error: () => {} });
+
+    // Fetch notification unread count
+    this.notifService.fetchUnreadCount();
+
+    // Fetch categories for the dropdown
+    this.productService.getFilterMeta().subscribe({
+      next: meta => { this.categories = meta.categories; },
+      error: () => {}
+    });
   }
 
-  constructor(private elementRef: ElementRef, public cartService: CartService) {}
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  // ── Getters ───────────────────────────────────────────────────────────────
+
+  get unreadCount(): number { return this.notifService.unreadCount; }
+
+  get userInitial(): string {
+    const name = this.user?.name || '';
+    return name.trim().charAt(0).toUpperCase() || '?';
+  }
+
+  get displayName(): string { return this.user?.name || 'My Account'; }
+  get displayEmail(): string { return this.user?.email || ''; }
+  get walletBalance(): number { return this.user?.walletBalance ?? 0; }
+
+  // ── Search ────────────────────────────────────────────────────────────────
+
+  onSearch(): void {
+    const q = this.searchKeyword.trim();
+    if (!q) return;
+    this.router.navigate(['/products'], { queryParams: { q } });
+    this.searchKeyword = '';
+    this.closeAll();
+  }
+
+  // ── Panel toggles ─────────────────────────────────────────────────────────
 
   toggleDropdown(event: Event): void {
     event.stopPropagation();
@@ -81,6 +115,10 @@ export class NavbarComponent {
     this.isDropdownOpen = false;
     this.isAccountMenuOpen = false;
     this.isNotificationsOpen = !this.isNotificationsOpen;
+
+    if (this.isNotificationsOpen && !this.previewLoaded) {
+      this.loadPreview();
+    }
   }
 
   toggleAccountMenu(event: Event): void {
@@ -102,7 +140,10 @@ export class NavbarComponent {
   }
 
   signOut(): void {
-    this.closeAll();
+    this.authService.logout().subscribe({
+      next: () => { this.closeAll(); this.router.navigate(['/']); },
+      error: () => { this.closeAll(); this.router.navigate(['/']); }
+    });
   }
 
   @HostListener('document:click', ['$event'])
@@ -112,5 +153,35 @@ export class NavbarComponent {
       this.isNotificationsOpen = false;
       this.isAccountMenuOpen = false;
     }
+  }
+
+  private loadPreview(): void {
+    this.notifLoading = true;
+    this.notifService.list(1, 5).subscribe({
+      next: page => {
+        this.notifLoading = false;
+        this.previewLoaded = true;
+        this.notifications = page.notifications.map(n => this.mapToNav(n));
+      },
+      error: () => {
+        this.notifLoading = false;
+        this.previewLoaded = true;
+      }
+    });
+  }
+
+  private mapToNav(n: UserNotification): NavNotification {
+    const type = (n.type || '').toLowerCase();
+    let tag: NotifTag = 'Promotion';
+    if (type.startsWith('order') || type === 'shipment' || type === 'delivery') tag = 'Order';
+    else if (type.includes('offer') || type.includes('promo') || type.includes('coupon') || type.includes('discount') || type.includes('sale')) tag = 'Offer';
+    return {
+      id:     n.id,
+      tag,
+      title:  n.title,
+      date:   new Date(n.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }),
+      desc:   n.message,
+      isRead: n.isRead,
+    };
   }
 }

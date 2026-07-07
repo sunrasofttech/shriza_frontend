@@ -269,6 +269,55 @@
 }
 
 /* ORDER HISTORY */
+.orders-skeleton { display: flex; flex-direction: column; gap: 14px; }
+
+.orders-skeleton-row {
+  height: 130px;
+  background: linear-gradient(90deg, #f0f5ee 25%, #e5ede1 50%, #f0f5ee 75%);
+  background-size: 200% 100%;
+  border-radius: 16px;
+  animation: shimmer 1.4s infinite;
+}
+
+.orders-error {
+  padding: 14px 18px;
+  background: #fff5f5;
+  border: 1px solid #fcd2d2;
+  border-radius: 10px;
+  color: #c0392b;
+  font-size: 0.86rem;
+}
+
+.orders-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 48px 0;
+  color: #9aa79b;
+  font-size: 0.9rem;
+}
+
+.shop-now-btn {
+  background: #0d7644;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* Status pill variants */
+.status-pill.confirmed,
+.status-pill.processing       { background: #e3effe; color: #1a5dbd; }
+.status-pill.packed,
+.status-pill.shipped          { background: #e8eaff; color: #4a4fbf; }
+.status-pill.out_for_delivery { background: #e1f5f2; color: #0d7a6a; }
+.status-pill.delivered        { background: #e6f4ed; color: #0d7644; }
+.status-pill.cancelled,
+.status-pill.return_requested { background: #fdf1f0; color: #c0392b; }
+
 .order-card {
   border: 1px solid #e7ece4;
   border-radius: 16px;
@@ -979,6 +1028,14 @@
   padding: 30px 0;
 }
 
+.wishlist-out-of-stock {
+  display: inline-block;
+  font-size: 0.72rem;
+  color: #c0392b;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
 /* MY REVIEWS */
 .write-review-btn {
   display: flex;
@@ -1122,11 +1179,79 @@
   line-height: 1.6;
 }
 
+.notif-inbox-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.notif-inbox-head h1 { margin: 0 0 4px; }
+.notif-inbox-head .content-sub { margin: 0; }
+
+.mark-all-btn {
+  flex-shrink: 0;
+  border: 1.5px solid #0d7644;
+  background: none;
+  color: #0d7644;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s, color 0.15s;
+  margin-top: 4px;
+}
+
+.mark-all-btn:hover:not(:disabled) { background: #0d7644; color: #fff; }
+.mark-all-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.notif-skeleton { display: flex; flex-direction: column; gap: 12px; }
+
+.notif-skeleton-row {
+  height: 76px;
+  background: linear-gradient(90deg, #f0f5ee 25%, #e5ede1 50%, #f0f5ee 75%);
+  background-size: 200% 100%;
+  border-radius: 14px;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+.notif-inbox-error {
+  padding: 14px 18px;
+  background: #fff5f5;
+  border: 1px solid #fcd2d2;
+  border-radius: 10px;
+  color: #c0392b;
+  font-size: 0.86rem;
+}
+
+.notif-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: #9aa79b;
+  font-size: 0.88rem;
+}
+
+.notif-empty-state p { margin: 0; }
+
+.notif-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
 .mark-read-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 10px;
   border: none;
   background: none;
   color: #0d7644;
@@ -1135,6 +1260,19 @@
   cursor: pointer;
   padding: 0;
 }
+
+.notif-delete-btn {
+  display: flex;
+  align-items: center;
+  border: none;
+  background: none;
+  color: #9aa79b;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.notif-delete-btn:hover { color: #c0392b; }
 
 /* SETTINGS & SECURITY */
 .settings-grid {

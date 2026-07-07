@@ -262,6 +262,128 @@
   max-width: 560px;
 }
 
+/* LOADING */
+.track-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 72px 0;
+  color: #8a978a;
+  font-size: 0.9rem;
+}
+
+.track-spinner {
+  display: block;
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e1e8df;
+  border-top-color: #0d7644;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.track-error {
+  text-align: center;
+  padding: 32px 48px;
+  color: #c0392b;
+  font-size: 0.9rem;
+  background: #fff5f5;
+  border: 1px solid #fcd2d2;
+  border-radius: 12px;
+  margin: 24px 48px;
+}
+
+/* SEARCH BOX */
+.track-search-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 40px 48px 56px;
+}
+
+.track-search-card {
+  background: #fff;
+  border: 1px solid #e7ece4;
+  border-radius: 16px;
+  padding: 36px 40px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+
+.track-search-card svg {
+  margin-bottom: 14px;
+}
+
+.track-search-card h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  margin: 0 0 8px;
+  color: #1f3421;
+}
+
+.track-search-card > p {
+  font-size: 0.85rem;
+  color: #8a978a;
+  margin: 0 0 22px;
+  line-height: 1.6;
+}
+
+.track-search-row {
+  display: flex;
+  gap: 10px;
+}
+
+.track-search-row input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid #d6e4d2;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  color: #1f3421;
+  outline: none;
+  transition: border-color 0.18s;
+}
+
+.track-search-row input:focus { border-color: #0d7644; }
+.track-search-row input.input-error { border-color: #e74c3c; }
+
+.search-btn {
+  padding: 10px 22px;
+  background: #0d7644;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s;
+  font-family: 'Inter', sans-serif;
+}
+
+.search-btn:hover:not(:disabled) { background: #0b6438; }
+.search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.search-error {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  color: #c0392b;
+}
+
+.no-activity {
+  display: flex;
+  flex-direction: column;
+}
+
+.no-activity .muted-small {
+  padding-left: 0;
+  font-size: 0.85rem;
+  color: #9aa79b;
+}
+
 /* RESPONSIVE */
 @media (max-width: 1024px) {
   .tracking-topbar,

@@ -424,3 +424,10 @@
     padding: 16px;
   }
 }
+
+/* Payment error */
+.pay-error {
+  font-size: 0.78rem;
+  color: #c0392b;
+  margin: 0 0 10px;
+}

@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { OrderService } from '../order.service';
+import { OrderService, OrderListItem } from '../order.service';
 import { CartService } from '../cart.service';
+import { NotificationService, UserNotification } from '../notification.service';
+import { WishlistService, WishlistItem } from '../wishlist.service';
 
 type AccountTab = 'profile' | 'orders' | 'addresses' | 'wallet' | 'wishlist' | 'reviews' | 'notifications' | 'settings';
 
@@ -18,16 +20,6 @@ interface WalletTransaction {
   amount: number;
 }
 
-interface WishlistItem {
-  id: string;
-  category: string;
-  name: string;
-  price: number;
-  oldPrice: number;
-  size: string;
-  image: string;
-}
-
 interface ProductReview {
   productName: string;
   rating: number;
@@ -41,13 +33,6 @@ interface NotificationPreference {
   enabled: boolean;
 }
 
-interface NotificationItem {
-  icon: 'bag' | 'tag' | 'bell';
-  title: string;
-  date: string;
-  desc: string;
-  read: boolean;
-}
 
 interface ManagedAddress {
   id: string;
@@ -67,7 +52,13 @@ interface ManagedAddress {
   styleUrls: ['./account.component.css']
 })
 export class AccountComponent implements OnInit {
-  constructor(public order: OrderService, public cart: CartService, private route: ActivatedRoute) {}
+  constructor(
+    public order: OrderService,
+    public cart: CartService,
+    private route: ActivatedRoute,
+    public notifService: NotificationService,
+    public wishlistService: WishlistService
+  ) {}
 
   activeTab: AccountTab = 'profile';
 
@@ -144,26 +135,10 @@ export class AccountComponent implements OnInit {
     }
   ];
 
-  wishlistItems: WishlistItem[] = [
-    {
-      id: 'p2',
-      category: 'Asthma Care',
-      name: 'Broncho-Pure Herbal Inhalant Oil',
-      price: 297,
-      oldPrice: 349,
-      size: '15ml size',
-      image: 'https://placehold.co/160x160/eef3ea/2f4f3f?text=Inhalant+Oil'
-    },
-    {
-      id: 'p3',
-      category: 'Asthma Care',
-      name: 'Lung-Detox Herbal Tea Infusion',
-      price: 449,
-      oldPrice: 499,
-      size: '20 Tea Bags size',
-      image: 'https://placehold.co/160x160/fbe7ea/7a3b46?text=Tea+Infusion'
-    }
-  ];
+  wishlistItems: WishlistItem[] = [];
+  wishlistLoading = false;
+  wishlistError = '';
+  wishlistMoveLoading: string | null = null;
 
   reviews: ProductReview[] = [
     {
@@ -182,29 +157,10 @@ export class AccountComponent implements OnInit {
     }
   ];
 
-  notifications: NotificationItem[] = [
-    {
-      icon: 'bag',
-      title: 'Order Placed Successfully',
-      date: '2026-06-23',
-      desc: "Your order SHZ-20260623-9573 has been successfully received. We will notify you once it's packed.",
-      read: true
-    },
-    {
-      icon: 'tag',
-      title: 'Welcome to Shriza Naturals!',
-      date: '2026-06-20',
-      desc: 'Explore our range of premium Ayurvedic and wellness products. Use coupon FIRSTORDER for 15% off!',
-      read: false
-    },
-    {
-      icon: 'bell',
-      title: 'Referral Bonus Active',
-      date: '2026-06-21',
-      desc: 'Share your referral code SHRIZA99 with friends and get ₹100 when they place their first order!',
-      read: false
-    }
-  ];
+  notifications: UserNotification[] = [];
+  notifLoading = false;
+  notifError = '';
+  notifMarkingAllRead = false;
 
   passwordForm = {
     current: '',
@@ -233,8 +189,79 @@ export class AccountComponent implements OnInit {
     settings: 'Settings & Security'
   };
 
+  // ── Orders ───────────────────────────────────────────────────────────────────
+
+  accountOrders: OrderListItem[] = [];
+  ordersLoading = false;
+  ordersError = '';
+
+  loadOrders(): void {
+    this.ordersLoading = true;
+    this.ordersError = '';
+    this.order.fetchOrders(1, 20).subscribe({
+      next: r => { this.ordersLoading = false; this.accountOrders = r.orders; },
+      error: err => {
+        this.ordersLoading = false;
+        this.ordersError = err?.error?.message || 'Could not load orders.';
+      }
+    });
+  }
+
+  orderDate(createdAt: string): string {
+    const d = new Date(createdAt);
+    return isNaN(d.getTime()) ? createdAt : d.toLocaleDateString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric',
+    });
+  }
+
+  orderStatusLabel(s: string): string {
+    return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
   setTab(tab: AccountTab): void {
     this.activeTab = tab;
+    if (tab === 'notifications') this.loadNotifications();
+    if (tab === 'orders')        this.loadOrders();
+    if (tab === 'wishlist')      this.loadWishlist();
+  }
+
+  loadWishlist(): void {
+    this.wishlistLoading = true;
+    this.wishlistError = '';
+    this.wishlistService.list().subscribe({
+      next: items => { this.wishlistLoading = false; this.wishlistItems = items; },
+      error: err => {
+        this.wishlistLoading = false;
+        this.wishlistError = err?.error?.message || 'Could not load wishlist.';
+      }
+    });
+  }
+
+  loadNotifications(): void {
+    this.notifLoading = true;
+    this.notifError = '';
+    this.notifService.list(1, 50).subscribe({
+      next: page => {
+        this.notifLoading = false;
+        this.notifications = page.notifications;
+      },
+      error: err => {
+        this.notifLoading = false;
+        this.notifError = err?.error?.message || 'Could not load notifications.';
+      }
+    });
+  }
+
+  notifIcon(type: string): 'bag' | 'tag' | 'bell' {
+    const t = (type || '').toLowerCase();
+    if (t.startsWith('order') || t === 'shipment' || t === 'delivery') return 'bag';
+    if (t.includes('offer') || t.includes('promo') || t.includes('coupon') || t.includes('discount') || t.includes('sale')) return 'tag';
+    return 'bell';
+  }
+
+  notifDate(createdAt: string): string {
+    const d = new Date(createdAt);
+    return isNaN(d.getTime()) ? createdAt : d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
   stars(rating: number): number[] {
@@ -344,16 +371,54 @@ export class AccountComponent implements OnInit {
   }
 
   moveToCart(item: WishlistItem): void {
-    this.cart.addItem({ id: item.id, name: item.name, size: item.size, price: item.price, image: item.image, quantity: 1 });
-    this.removeFromWishlist(item.id);
+    if (this.wishlistMoveLoading === item.productId) return;
+    this.wishlistMoveLoading = item.productId;
+    this.wishlistService.moveToCart(item.productId).subscribe({
+      next: () => {
+        this.wishlistMoveLoading = null;
+        this.wishlistItems = this.wishlistItems.filter(i => i.productId !== item.productId);
+        this.cart.fetchCart().subscribe();
+      },
+      error: () => { this.wishlistMoveLoading = null; }
+    });
   }
 
-  removeFromWishlist(id: string): void {
-    this.wishlistItems = this.wishlistItems.filter((item) => item.id !== id);
+  removeFromWishlist(productId: string): void {
+    this.wishlistService.remove(productId).subscribe({
+      next: () => {
+        this.wishlistItems = this.wishlistItems.filter(i => i.productId !== productId);
+      },
+      error: () => {}
+    });
   }
 
-  markAsRead(notification: NotificationItem): void {
-    notification.read = true;
+  markAsRead(notification: UserNotification): void {
+    if (notification.isRead) return;
+    this.notifService.markRead(notification.id).subscribe({
+      next: () => { notification.isRead = true; },
+      error: () => {}
+    });
+  }
+
+  markAllRead(): void {
+    this.notifMarkingAllRead = true;
+    this.notifService.markAllRead().subscribe({
+      next: () => {
+        this.notifMarkingAllRead = false;
+        this.notifications.forEach(n => { n.isRead = true; });
+      },
+      error: () => { this.notifMarkingAllRead = false; }
+    });
+  }
+
+  deleteNotification(notification: UserNotification): void {
+    this.notifService.delete(notification.id).subscribe({
+      next: () => {
+        this.notifications = this.notifications.filter(n => n.id !== notification.id);
+        if (!notification.isRead) this.notifService.decrementCount();
+      },
+      error: () => {}
+    });
   }
 
   toggleCurrentPasswordVisibility(): void {

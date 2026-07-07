@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.shriza.com'
+  apiUrl: 'https://shrizanaturals.shop/api',
+  imageUrl: 'https://shrizanaturals.shop'
 };

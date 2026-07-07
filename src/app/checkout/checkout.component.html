@@ -5,7 +5,6 @@
     </svg>
     Back
   </a>
-
   <div class="steps">
     <span class="step active">1. Delivery</span>
     <span class="step">2. Payment</span>
@@ -15,6 +14,8 @@
 
 <div class="checkout-body">
   <div class="checkout-main">
+
+    <!-- ADDRESS SECTION -->
     <section class="address-section">
       <div class="section-head">
         <h2>
@@ -32,12 +33,18 @@
         </button>
       </div>
 
-      <div class="address-grid">
+      <!-- Loading -->
+      <div class="address-grid" *ngIf="addrLoading">
+        <div class="address-card skeleton-addr" *ngFor="let _ of [1,2]"></div>
+      </div>
+
+      <!-- Address cards -->
+      <div class="address-grid" *ngIf="!addrLoading">
         <article
           class="address-card"
           *ngFor="let addr of addresses"
-          [class.selected]="selectedAddressId === addr.id"
-          (click)="selectAddress(addr.id)"
+          [class.selected]="isSelected(addr)"
+          (click)="selectAddress(addr)"
         >
           <div class="address-card-head">
             <span class="address-type-icon">
@@ -51,37 +58,40 @@
             </span>
             <strong>{{ addr.label }}</strong>
             <span class="default-badge" *ngIf="addr.isDefault">DEFAULT</span>
-            <span class="selected-check" *ngIf="selectedAddressId === addr.id">
+            <span class="selected-check" *ngIf="isSelected(addr)">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
                 <path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </span>
           </div>
-
-          <p class="address-name">{{ addr.name }}</p>
-          <p class="address-lines">{{ addr.line1 }}<br />{{ addr.city }}, {{ addr.state }} - <strong>{{ addr.zip }}</strong></p>
+          <p class="address-name">{{ addr.fullName }}</p>
+          <p class="address-lines">{{ addr.addressLine1 }}<br />{{ addr.city }}, {{ addr.state }} - <strong>{{ addr.pincode }}</strong></p>
           <p class="address-phone">Phone: {{ addr.phone }}</p>
         </article>
+
+        <div class="no-addresses" *ngIf="addresses.length === 0">
+          <p>No saved addresses. Add one below.</p>
+        </div>
       </div>
 
+      <!-- Add address form -->
       <div class="add-address-form" *ngIf="addingAddress">
         <h3>Add New Delivery Address</h3>
-
         <div class="form-grid">
           <div class="form-field">
-            <label>Consignee Name</label>
-            <input type="text" placeholder="e.g. John Doe" [(ngModel)]="newAddress.name" />
+            <label>Full Name *</label>
+            <input type="text" placeholder="e.g. John Doe" [(ngModel)]="newAddress.fullName" />
           </div>
           <div class="form-field">
             <label>Mobile Number</label>
-            <input type="text" placeholder="9876543210" [(ngModel)]="newAddress.mobile" />
+            <input type="text" placeholder="9876543210" [(ngModel)]="newAddress.phone" />
           </div>
           <div class="form-field full">
-            <label>Street Address / Apartment</label>
-            <input type="text" placeholder="Flat 402, Green Valley Apartments, Road No. 4" [(ngModel)]="newAddress.line1" />
+            <label>Street Address *</label>
+            <input type="text" placeholder="Flat 402, Green Valley Apartments, Road No. 4" [(ngModel)]="newAddress.addressLine1" />
           </div>
           <div class="form-field">
-            <label>City</label>
+            <label>City *</label>
             <input type="text" placeholder="Navi Mumbai" [(ngModel)]="newAddress.city" />
           </div>
           <div class="form-field">
@@ -89,26 +99,29 @@
             <input type="text" placeholder="Maharashtra" [(ngModel)]="newAddress.state" />
           </div>
           <div class="form-field">
-            <label>Zip / Postal Code</label>
-            <input type="text" placeholder="400703" [(ngModel)]="newAddress.zip" />
+            <label>Pincode *</label>
+            <input type="text" placeholder="400703" [(ngModel)]="newAddress.pincode" />
           </div>
           <div class="form-field">
             <label>Address Type</label>
             <div class="address-type-pills">
-              <button type="button" [class.active]="newAddress.type === 'Home'" (click)="setNewAddressType('Home')">Home</button>
-              <button type="button" [class.active]="newAddress.type === 'Work'" (click)="setNewAddressType('Work')">Work</button>
-              <button type="button" [class.active]="newAddress.type === 'Other'" (click)="setNewAddressType('Other')">Other</button>
+              <button type="button" [class.active]="newAddress.label === 'Home'"  (click)="setAddressLabel('Home')">Home</button>
+              <button type="button" [class.active]="newAddress.label === 'Work'"  (click)="setAddressLabel('Work')">Work</button>
+              <button type="button" [class.active]="newAddress.label === 'Other'" (click)="setAddressLabel('Other')">Other</button>
             </div>
           </div>
         </div>
-
         <div class="form-actions">
           <button type="button" class="cancel-btn" (click)="toggleAddAddress()">Cancel</button>
-          <button type="button" class="save-btn" (click)="saveAddress()">Save Address</button>
+          <button type="button" class="save-btn" (click)="saveAddress()" [disabled]="savingAddress">
+            {{ savingAddress ? 'Saving…' : 'Save Address' }}
+          </button>
         </div>
+        <p class="addr-err" *ngIf="addressError">{{ addressError }}</p>
       </div>
     </section>
 
+    <!-- DELIVERY OPTION SECTION -->
     <section class="delivery-option-section">
       <h2>
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
@@ -116,57 +129,74 @@
         </svg>
         Select Delivery Option
       </h2>
-
       <div class="delivery-options">
         <article
           class="delivery-option"
           *ngFor="let option of deliveryOptions"
-          [class.selected]="selectedDeliveryId === option.id"
+          [class.selected]="selectedDelivery === option.id"
           (click)="selectDelivery(option.id)"
         >
           <div>
             <strong>{{ option.label }}</strong>
             <p>Expected Delivery: {{ option.eta }}</p>
           </div>
-          <span class="delivery-price" [class.free]="option.price === 0">{{ option.price === 0 ? 'FREE' : '₹' + option.price }}</span>
+          <span class="delivery-price" *ngIf="summaryLoading">…</span>
+          <ng-container *ngIf="!summaryLoading && pricing">
+            <span class="delivery-price free" *ngIf="option.id === 'standard' && pricing.shippingFee === 0 && selectedDelivery === 'standard'">FREE</span>
+            <span class="delivery-price"      *ngIf="option.id === 'express'">₹150</span>
+            <span class="delivery-price free" *ngIf="option.id === 'standard' && selectedDelivery !== 'standard'">FREE</span>
+          </ng-container>
+          <span class="delivery-price" *ngIf="!summaryLoading && !pricing">
+            {{ option.id === 'express' ? '₹150' : 'FREE' }}
+          </span>
         </article>
       </div>
     </section>
+
   </div>
 
+  <!-- ORDER SUMMARY SIDEBAR -->
   <aside class="order-summary-card">
     <h2>Order Summary</h2>
 
     <div class="summary-item-row" *ngFor="let item of cart.items">
-      <span>{{ item.name }}</span>
-      <strong>₹{{ item.price * item.quantity | number: '1.0-0' }}</strong>
+      <span>{{ item.productName }}</span>
+      <strong>₹{{ item.lineTotal | number: '1.0-0' }}</strong>
     </div>
 
-    <div class="summary-rows">
+    <div class="summary-rows" *ngIf="!summaryLoading && pricing">
       <div class="summary-row">
         <span>Subtotal:</span>
-        <strong>₹{{ cart.subtotal | number: '1.2-2' }}</strong>
+        <strong>₹{{ pricing.subtotal | number: '1.2-2' }}</strong>
       </div>
-      <div class="summary-row discount">
-        <span>Discount:</span>
-        <strong>-₹{{ discountAmount }}</strong>
+      <div class="summary-row discount" *ngIf="pricing.discountAmount > 0">
+        <span>Coupon Discount:</span>
+        <strong>−₹{{ pricing.discountAmount | number: '1.2-2' }}</strong>
       </div>
       <div class="summary-row">
         <span>Shipping:</span>
-        <strong [class.free]="shippingCost === 0">{{ shippingCost === 0 ? 'FREE' : '₹' + shippingCost }}</strong>
+        <strong [class.free]="pricing.shippingFee === 0">
+          {{ pricing.shippingFee === 0 ? 'FREE' : '₹' + pricing.shippingFee }}
+        </strong>
       </div>
       <div class="summary-row">
-        <span>Estimated Tax (5%):</span>
-        <strong>₹{{ taxAmount }}</strong>
+        <span>Estimated Tax (5% GST):</span>
+        <strong>₹{{ pricing.taxAmount | number: '1.2-2' }}</strong>
       </div>
     </div>
 
-    <div class="summary-total">
-      <span>Total Amount:</span>
-      <strong>₹{{ total | number: '1.2-2' }}</strong>
+    <div class="summary-rows" *ngIf="summaryLoading || !pricing">
+      <div class="summary-row"><span>Loading pricing…</span></div>
     </div>
 
-    <button type="button" class="continue-btn" routerLink="/checkout/payment">
+    <div class="summary-total" *ngIf="pricing">
+      <span>Total Amount:</span>
+      <strong>₹{{ pricing.totalAmount | number: '1.2-2' }}</strong>
+    </div>
+
+    <p class="checkout-err" *ngIf="continueError">{{ continueError }}</p>
+
+    <button type="button" class="continue-btn" (click)="continueToPayment()" [disabled]="summaryLoading || addrLoading">
       Continue to Payment
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
         <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />

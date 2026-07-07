@@ -8,11 +8,49 @@
 
   <div class="title-block">
     <h1>Track Shipment</h1>
-    <span>Live Tracking ID: {{ order.orderNumber }}</span>
+    <span *ngIf="tracking">Live Tracking: {{ tracking.orderNumber }}</span>
+    <span *ngIf="!tracking && !loading">Enter your order number below</span>
   </div>
 </div>
 
-<div class="tracking-body">
+<!-- LOADING STATE -->
+<div class="track-loading" *ngIf="loading">
+  <span class="track-spinner"></span>
+  <p>Fetching tracking details…</p>
+</div>
+
+<!-- TOP-LEVEL ERROR -->
+<p class="track-error" *ngIf="error && !loading">{{ error }}</p>
+
+<!-- SEARCH BOX — shown when no order auto-loaded -->
+<div class="track-search-wrap" *ngIf="!tracking && !loading">
+  <div class="track-search-card">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <path d="M2 7h11v9H2V7Z" stroke="#0d7644" stroke-width="1.5" stroke-linejoin="round" />
+      <path d="M13 10h4l3 3v3h-7v-6Z" stroke="#0d7644" stroke-width="1.5" stroke-linejoin="round" />
+      <circle cx="6" cy="18" r="1.6" stroke="#0d7644" stroke-width="1.4" />
+      <circle cx="16.5" cy="18" r="1.6" stroke="#0d7644" stroke-width="1.4" />
+    </svg>
+    <h2>Track Your Order</h2>
+    <p>Enter your order number (e.g. SHZ-20260707-1234) to see live tracking updates.</p>
+    <div class="track-search-row">
+      <input
+        type="text"
+        placeholder="e.g. SHZ-20260707-1234"
+        [(ngModel)]="searchInput"
+        (keydown.enter)="searchOrder()"
+        [class.input-error]="searchError"
+      />
+      <button type="button" class="search-btn" (click)="searchOrder()" [disabled]="!searchInput.trim()">
+        Track
+      </button>
+    </div>
+    <p class="search-error" *ngIf="searchError">{{ searchError }}</p>
+  </div>
+</div>
+
+<!-- TRACKING CONTENT -->
+<div class="tracking-body" *ngIf="tracking && !loading">
   <section class="progress-card">
     <h2>Delivery Progress</h2>
 
@@ -56,7 +94,7 @@
   <section class="info-card">
     <h2>Shipment Info</h2>
 
-    <div class="info-row">
+    <div class="info-row" *ngIf="tracking.shipmentInfo.courierPartner || tracking.shipmentInfo.awbNumber">
       <div class="info-row-head">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M2 7h11v9H2V7Z" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
@@ -66,8 +104,8 @@
         </svg>
         <strong>Courier Partner</strong>
       </div>
-      <p>{{ courier.partner }}</p>
-      <span class="muted-small">AWB: {{ courier.awb }}</span>
+      <p>{{ tracking.shipmentInfo.courierPartner || '—' }}</p>
+      <span class="muted-small" *ngIf="tracking.shipmentInfo.awbNumber">AWB: {{ tracking.shipmentInfo.awbNumber }}</span>
     </div>
 
     <div class="info-row">
@@ -78,10 +116,10 @@
         </svg>
         <strong>Estimated Delivery</strong>
       </div>
-      <p>{{ order.expectedDelivery }}</p>
+      <p>{{ tracking.shipmentInfo.estimatedDelivery || '—' }}</p>
     </div>
 
-    <div class="info-row">
+    <div class="info-row" *ngIf="tracking.shipmentInfo.deliveryAddress.fullName">
       <div class="info-row-head">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
           <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
@@ -90,16 +128,17 @@
         <strong>Delivery Address</strong>
       </div>
       <p>
-        {{ order.shippingAddress.name }}<br />
-        {{ order.shippingAddress.line1 }}, {{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} -
-        {{ order.shippingAddress.zip }}
+        {{ tracking.shipmentInfo.deliveryAddress.fullName }}<br />
+        {{ tracking.shipmentInfo.deliveryAddress.addressLine1 }},
+        {{ tracking.shipmentInfo.deliveryAddress.city }},
+        {{ tracking.shipmentInfo.deliveryAddress.state }} -
+        {{ tracking.shipmentInfo.deliveryAddress.pincode }}
       </p>
     </div>
   </section>
 
-  <section class="activity-card">
+  <section class="activity-card" *ngIf="activityLog.length > 0">
     <h2>Activity Log</h2>
-
     <div class="activity-list">
       <div class="activity-row" *ngFor="let entry of activityLog; let last = last" [class]="entry.status">
         <div class="activity-marker-col">
@@ -115,5 +154,10 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <section class="activity-card no-activity" *ngIf="activityLog.length === 0">
+    <h2>Activity Log</h2>
+    <p class="muted-small">No activity updates yet. Check back soon.</p>
   </section>
 </div>

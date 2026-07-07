@@ -1,15 +1,15 @@
+<!-- ── HERO ────────────────────────────────────────────────────────────────── -->
 <section class="hero-section">
   <div class="hero-copy">
-    <span class="eyebrow">Premium Organic Skin Care</span>
-    <h1>Nourish Your Natural Radiance</h1>
+    <span class="eyebrow">{{ activeBanner?.badgeText || 'Premium Organic Wellness' }}</span>
+    <h1>{{ activeBanner?.title || 'Nourish Your Natural Radiance' }}</h1>
     <p>
-      Imbue a golden glow with our Kumkumadi Face Elixir Oil, infused with pure
-      Kashmiri saffron threads, real sandalwood, and raw goat milk.
+      {{ activeBanner?.description || 'Imbue a golden glow with our Kumkumadi Face Elixir Oil, infused with pure Kashmiri saffron threads, real sandalwood, and raw goat milk.' }}
     </p>
 
     <div class="hero-actions">
       <button type="button" class="primary-btn" (click)="scrollToSection('shop-section')">
-        Shop Now
+        {{ activeBanner?.ctaText || 'Shop Now' }}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
           <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
@@ -21,15 +21,25 @@
   </div>
 
   <div class="hero-visual">
-    <img [src]="heroImage" alt="Shriza Naturals products" />
-    <div class="hero-dots">
-      <span class="active"></span>
-      <span></span>
-      <span></span>
+    <img
+      [src]="activeBanner?.thumbnailUrl || activeBanner?.imageUrl || ph('Shriza Naturals', 760, 640)"
+      alt="Shriza Naturals products"
+    />
+    <!-- Banner navigation dots (only rendered when multiple banners exist) -->
+    <div class="hero-dots" *ngIf="heroBanners.length > 1">
+      <span
+        *ngFor="let _ of heroBanners; let i = index"
+        [class.active]="i === heroBannerIndex"
+        (click)="heroBannerIndex = i"
+      ></span>
+    </div>
+    <div class="hero-dots" *ngIf="heroBanners.length <= 1">
+      <span class="active"></span><span></span><span></span>
     </div>
   </div>
 </section>
 
+<!-- ── OFFERS / COUPONS ─────────────────────────────────────────────────────── -->
 <section class="offers-section">
   <div class="section-head">
     <div>
@@ -46,8 +56,32 @@
     </div>
   </div>
 
-  <div class="offers-grid">
-    <article class="offer-card" *ngFor="let offer of offers" [class]="'theme-' + offer.theme">
+  <!-- Live coupons from API -->
+  <div class="offers-grid" *ngIf="coupons.length > 0">
+    <article class="offer-card" *ngFor="let c of coupons; let i = index" [class]="'theme-' + couponTheme(i)">
+      <div class="offer-top">
+        <div>
+          <span class="offer-title">{{ c.title }}</span>
+          <span class="offer-discount">{{ c.discountLabel }}</span>
+        </div>
+        <span class="offer-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M3 12l3-7h12l3 7-9 9-9-9Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+          </svg>
+        </span>
+      </div>
+      <p>{{ c.description || (c.minOrderValue ? 'On orders above ₹' + c.minOrderValue : 'Limited time offer') }}</p>
+      <span class="offer-code">{{ c.code }}</span>
+    </article>
+  </div>
+
+  <!-- Static fallback when API has no coupons configured yet -->
+  <div class="offers-grid" *ngIf="coupons.length === 0 && !loading">
+    <article class="offer-card" *ngFor="let offer of [
+      { theme: 'green',  title: 'Welcome Discount', discount: '15% OFF',  desc: 'On your first purchase',      code: 'FIRSTORDER' },
+      { theme: 'light',  title: 'Wellness Boost',   discount: '20% OFF',  desc: 'On Asthma & Herbal products', code: 'NATURAL20'  },
+      { theme: 'orange', title: 'Flat Discount',    discount: '₹100 OFF', desc: 'On orders above ₹999',        code: 'FLAT100'    }
+    ]" [class]="'theme-' + offer.theme">
       <div class="offer-top">
         <div>
           <span class="offer-title">{{ offer.title }}</span>
@@ -64,6 +98,7 @@
     </article>
   </div>
 
+  <!-- Trust badges -->
   <div class="trust-row">
     <div class="trust-card" *ngFor="let badge of trustBadges">
       <span class="trust-icon">
@@ -72,28 +107,53 @@
           <path d="M8.5 12.5l2.2 2.2L16 9.5" stroke="#0d7644" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </span>
-      <strong>{{ badge.title }}</strong>
-      <span>{{ badge.desc }}</span>
+      <strong>{{ badge.label }}</strong>
+      <span>{{ badge.subLabel }}</span>
     </div>
   </div>
 </section>
 
+<!-- ── CATEGORIES ──────────────────────────────────────────────────────────── -->
 <section class="categories-section">
   <span class="eyebrow small center">Handcrafted Wellness</span>
   <h2 class="center">Shop by Organic Category</h2>
   <p class="section-sub center">Discover curated remedies designed to align your mind, body, and spirit.</p>
 
-  <div class="categories-grid-row">
-    <a class="category-pill" *ngFor="let category of categories" [routerLink]="['/category', category.slug]">
+  <!-- Loading skeleton -->
+  <div class="categories-grid-row" *ngIf="loading">
+    <span class="category-pill skeleton-cat" *ngFor="let _ of [1,2,3,4,5]"></span>
+  </div>
+
+  <!-- API categories -->
+  <div class="categories-grid-row" *ngIf="!loading && categories.length > 0">
+    <a class="category-pill" *ngFor="let cat of categories" [routerLink]="['/products']" [queryParams]="{ category: cat.slug }">
       <span class="category-circle">
-        <img [src]="category.image" [alt]="category.name" />
+        <img [src]="categoryImage(cat)" [alt]="cat.name" />
       </span>
-      <strong>{{ category.name }}</strong>
-      <span>{{ category.count }} Products</span>
+      <strong>{{ cat.name }}</strong>
+      <span>{{ cat.productCount }} Products</span>
+    </a>
+  </div>
+
+  <!-- Static fallback -->
+  <div class="categories-grid-row" *ngIf="!loading && categories.length === 0">
+    <a class="category-pill" *ngFor="let cat of [
+      { name: 'Asthma Care', slug: 'asthma-care', count: 36 },
+      { name: 'Herbal Care', slug: 'herbal-care', count: 71 },
+      { name: 'Skin Care',   slug: 'skin-care',   count: 71 },
+      { name: 'Hair Care',   slug: 'hair-care',   count: 56 },
+      { name: 'Wellness',    slug: 'wellness',     count: 50 }
+    ]" [routerLink]="['/products']" [queryParams]="{ category: cat.slug }">
+      <span class="category-circle">
+        <img [src]="ph(cat.name, 200, 200)" [alt]="cat.name" />
+      </span>
+      <strong>{{ cat.name }}</strong>
+      <span>{{ cat.count }} Products</span>
     </a>
   </div>
 </section>
 
+<!-- ── FEATURED PRODUCTS ───────────────────────────────────────────────────── -->
 <section id="shop-section" class="shop-section">
   <div class="section-head">
     <div>
@@ -106,46 +166,64 @@
     </a>
   </div>
 
-  <div class="product-grid">
+  <div class="product-grid" *ngIf="featuredProducts.length > 0">
     <article class="product-card" *ngFor="let product of featuredProducts">
       <div class="product-media">
-        <span class="badge" [class.pink]="product.badgeTone === 'pink'">{{ product.badge }}</span>
-        <button type="button" class="wishlist-btn" aria-label="Add to wishlist">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
-              stroke="#2b3a2c"
-              stroke-width="1.6"
-              stroke-linejoin="round"
-            />
+        <span class="badge" *ngIf="badgeText(product)" [class.pink]="badgeTone(product) === 'pink'">{{ badgeText(product) }}</span>
+        <button
+          type="button"
+          class="wishlist-btn"
+          [class.active]="wishlistIds.has(product.id)"
+          [disabled]="wishlistTogglingId === product.id"
+          (click)="toggleWishlist(product)"
+          aria-label="Add to wishlist"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" [attr.fill]="wishlistIds.has(product.id) ? '#d6477b' : 'none'">
+            <path d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+              [attr.stroke]="wishlistIds.has(product.id) ? '#d6477b' : '#2b3a2c'" stroke-width="1.6" stroke-linejoin="round" />
           </svg>
         </button>
-        <a [routerLink]="['/product', productId(product.name)]">
-          <img [src]="product.image" [alt]="product.name" />
+        <a [routerLink]="['/product', product.slug]">
+          <img [src]="productImage(product)" [alt]="product.name" loading="lazy" />
         </a>
       </div>
       <div class="product-info">
         <span class="product-category">{{ product.category | uppercase }}</span>
-        <h3><a [routerLink]="['/product', productId(product.name)]">{{ product.name }}</a></h3>
+        <h3><a [routerLink]="['/product', product.slug]">{{ product.name }}</a></h3>
         <div class="product-rating">
           <span class="stars">
-            <svg *ngFor="let s of stars(product.rating)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+            <svg *ngFor="let s of stars(product.rating.avg)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
               <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
             </svg>
           </span>
-          <span class="rating-text">{{ product.rating }} ({{ product.reviews }})</span>
+          <span class="rating-text">{{ product.rating.avg | number:'1.1-1' }} ({{ product.rating.count }})</span>
         </div>
         <div class="product-bottom">
           <div class="price">
-            <strong>₹{{ product.price }}</strong>
-            <s>₹{{ product.oldPrice }}</s>
+            <strong>₹{{ product.pricing.sellingPrice }}</strong>
+            <s *ngIf="product.pricing.mrp > product.pricing.sellingPrice">₹{{ product.pricing.mrp }}</s>
           </div>
           <div class="product-actions">
-            <button type="button" class="buy-btn">Buy Now</button>
-            <button type="button" class="cart-btn" aria-label="Add to cart">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <button
+              type="button"
+              class="buy-btn"
+              [disabled]="!product.stock.inStock || addingToCartId === product.id"
+              (click)="buyNow(product)"
+            >{{ product.stock.inStock ? 'Buy Now' : 'Out of Stock' }}</button>
+            <button
+              type="button"
+              class="cart-btn"
+              [disabled]="!product.stock.inStock || addingToCartId === product.id"
+              [class.cart-added]="addedToCartId === product.id"
+              (click)="addToCart(product)"
+              aria-label="Add to cart"
+            >
+              <svg *ngIf="addedToCartId !== product.id" width="15" height="15" viewBox="0 0 24 24" fill="none">
                 <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
                 <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" />
+              </svg>
+              <svg *ngIf="addedToCartId === product.id" width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12l5 5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
           </div>
@@ -155,7 +233,8 @@
   </div>
 </section>
 
-<section class="bestsellers-section">
+<!-- ── BEST SELLERS ────────────────────────────────────────────────────────── -->
+<section class="bestsellers-section" *ngIf="bestSellers.length > 0">
   <div class="section-head">
     <div>
       <span class="eyebrow small">Highly Acclaimed</span>
@@ -170,43 +249,54 @@
   <div class="product-grid four-col">
     <article class="product-card" *ngFor="let product of bestSellers">
       <div class="product-media">
-        <span class="badge" [class.pink]="product.badgeTone === 'pink'">{{ product.badge }}</span>
-        <button type="button" class="wishlist-btn" aria-label="Add to wishlist">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
-              stroke="#2b3a2c"
-              stroke-width="1.6"
-              stroke-linejoin="round"
-            />
+        <span class="badge" *ngIf="badgeText(product)" [class.pink]="badgeTone(product) === 'pink'">{{ badgeText(product) }}</span>
+        <button
+          type="button"
+          class="wishlist-btn"
+          [class.active]="wishlistIds.has(product.id)"
+          [disabled]="wishlistTogglingId === product.id"
+          (click)="toggleWishlist(product)"
+          aria-label="Add to wishlist"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" [attr.fill]="wishlistIds.has(product.id) ? '#d6477b' : 'none'">
+            <path d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+              [attr.stroke]="wishlistIds.has(product.id) ? '#d6477b' : '#2b3a2c'" stroke-width="1.6" stroke-linejoin="round" />
           </svg>
         </button>
-        <a [routerLink]="['/product', productId(product.name)]">
-          <img [src]="product.image" [alt]="product.name" />
+        <a [routerLink]="['/product', product.slug]">
+          <img [src]="productImage(product)" [alt]="product.name" loading="lazy" />
         </a>
       </div>
       <div class="product-info">
         <span class="product-category">{{ product.category | uppercase }}</span>
-        <h3><a [routerLink]="['/product', productId(product.name)]">{{ product.name }}</a></h3>
+        <h3><a [routerLink]="['/product', product.slug]">{{ product.name }}</a></h3>
         <div class="product-rating">
           <span class="stars">
-            <svg *ngFor="let s of stars(product.rating)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+            <svg *ngFor="let s of stars(product.rating.avg)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
               <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
             </svg>
           </span>
-          <span class="rating-text">{{ product.rating }} ({{ product.reviews }})</span>
+          <span class="rating-text">{{ product.rating.avg | number:'1.1-1' }} ({{ product.rating.count }})</span>
         </div>
         <div class="product-bottom">
           <div class="price">
-            <strong>₹{{ product.price }}</strong>
-            <s>₹{{ product.oldPrice }}</s>
+            <strong>₹{{ product.pricing.sellingPrice }}</strong>
+            <s *ngIf="product.pricing.mrp > product.pricing.sellingPrice">₹{{ product.pricing.mrp }}</s>
           </div>
           <div class="product-actions">
-            <button type="button" class="buy-btn">Buy Now</button>
-            <button type="button" class="cart-btn" aria-label="Add to cart">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <button type="button" class="buy-btn"
+              [disabled]="!product.stock.inStock || addingToCartId === product.id"
+              (click)="buyNow(product)">{{ product.stock.inStock ? 'Buy Now' : 'Out of Stock' }}</button>
+            <button type="button" class="cart-btn"
+              [disabled]="!product.stock.inStock || addingToCartId === product.id"
+              [class.cart-added]="addedToCartId === product.id"
+              (click)="addToCart(product)" aria-label="Add to cart">
+              <svg *ngIf="addedToCartId !== product.id" width="15" height="15" viewBox="0 0 24 24" fill="none">
                 <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
                 <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" />
+              </svg>
+              <svg *ngIf="addedToCartId === product.id" width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12l5 5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
           </div>
@@ -216,7 +306,8 @@
   </div>
 </section>
 
-<section class="newarrivals-section">
+<!-- ── NEW ARRIVALS ────────────────────────────────────────────────────────── -->
+<section class="newarrivals-section" *ngIf="newArrivals.length > 0">
   <div class="section-head">
     <div>
       <span class="eyebrow small">Freshly Harvested</span>
@@ -231,43 +322,54 @@
   <div class="product-grid four-col">
     <article class="product-card" *ngFor="let product of newArrivals">
       <div class="product-media">
-        <span class="badge" [class.pink]="product.badgeTone === 'pink'">{{ product.badge }}</span>
-        <button type="button" class="wishlist-btn" aria-label="Add to wishlist">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
-              stroke="#2b3a2c"
-              stroke-width="1.6"
-              stroke-linejoin="round"
-            />
+        <span class="badge" *ngIf="badgeText(product)" [class.pink]="badgeTone(product) === 'pink'">{{ badgeText(product) }}</span>
+        <button
+          type="button"
+          class="wishlist-btn"
+          [class.active]="wishlistIds.has(product.id)"
+          [disabled]="wishlistTogglingId === product.id"
+          (click)="toggleWishlist(product)"
+          aria-label="Add to wishlist"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" [attr.fill]="wishlistIds.has(product.id) ? '#d6477b' : 'none'">
+            <path d="M12 20.5s-7.5-4.6-10-9.3C0.5 7.8 2.3 4.5 5.7 4c2-.3 3.8.6 5 2.3 1.2-1.7 3-2.6 5-2.3 3.4.5 5.2 3.8 3.7 7.2-2.5 4.7-10 9.3-10 9.3Z"
+              [attr.stroke]="wishlistIds.has(product.id) ? '#d6477b' : '#2b3a2c'" stroke-width="1.6" stroke-linejoin="round" />
           </svg>
         </button>
-        <a [routerLink]="['/product', productId(product.name)]">
-          <img [src]="product.image" [alt]="product.name" />
+        <a [routerLink]="['/product', product.slug]">
+          <img [src]="productImage(product)" [alt]="product.name" loading="lazy" />
         </a>
       </div>
       <div class="product-info">
         <span class="product-category">{{ product.category | uppercase }}</span>
-        <h3><a [routerLink]="['/product', productId(product.name)]">{{ product.name }}</a></h3>
+        <h3><a [routerLink]="['/product', product.slug]">{{ product.name }}</a></h3>
         <div class="product-rating">
           <span class="stars">
-            <svg *ngFor="let s of stars(product.rating)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
+            <svg *ngFor="let s of stars(product.rating.avg)" width="13" height="13" viewBox="0 0 24 24" [attr.fill]="s ? '#f3a72e' : 'none'">
               <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7-5.4-4.7 7.1-.6L12 2Z" stroke="#f3a72e" stroke-width="1" />
             </svg>
           </span>
-          <span class="rating-text">{{ product.rating }} ({{ product.reviews }})</span>
+          <span class="rating-text">{{ product.rating.avg | number:'1.1-1' }} ({{ product.rating.count }})</span>
         </div>
         <div class="product-bottom">
           <div class="price">
-            <strong>₹{{ product.price }}</strong>
-            <s>₹{{ product.oldPrice }}</s>
+            <strong>₹{{ product.pricing.sellingPrice }}</strong>
+            <s *ngIf="product.pricing.mrp > product.pricing.sellingPrice">₹{{ product.pricing.mrp }}</s>
           </div>
           <div class="product-actions">
-            <button type="button" class="buy-btn">Buy Now</button>
-            <button type="button" class="cart-btn" aria-label="Add to cart">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+            <button type="button" class="buy-btn"
+              [disabled]="!product.stock.inStock || addingToCartId === product.id"
+              (click)="buyNow(product)">{{ product.stock.inStock ? 'Buy Now' : 'Out of Stock' }}</button>
+            <button type="button" class="cart-btn"
+              [disabled]="!product.stock.inStock || addingToCartId === product.id"
+              [class.cart-added]="addedToCartId === product.id"
+              (click)="addToCart(product)" aria-label="Add to cart">
+              <svg *ngIf="addedToCartId !== product.id" width="15" height="15" viewBox="0 0 24 24" fill="none">
                 <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
                 <path d="M9 8a3 3 0 0 1 6 0" stroke="currentColor" stroke-width="1.6" />
+              </svg>
+              <svg *ngIf="addedToCartId === product.id" width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12l5 5L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
           </div>
@@ -277,20 +379,22 @@
   </div>
 </section>
 
+<!-- ── WHY SHRIZA ──────────────────────────────────────────────────────────── -->
 <section id="philosophy-section" class="why-section">
   <span class="eyebrow small center">Our Promise</span>
   <h2 class="center">Why Shriza Naturals?</h2>
   <p class="section-sub center">We take the bar of premium natural wellness. Clean luxury, zero compromises.</p>
 
   <div class="why-grid">
-    <article class="why-card" *ngFor="let item of whyUs">
-      <span class="why-number">{{ item.number }}</span>
+    <article class="why-card" *ngFor="let item of whyUsItems">
+      <span class="why-number">{{ whyNumber(item.step) }}</span>
       <h3>{{ item.title }}</h3>
-      <p>{{ item.desc }}</p>
+      <p>{{ item.body }}</p>
     </article>
   </div>
 </section>
 
+<!-- ── TESTIMONIALS — always static ───────────────────────────────────────── -->
 <section class="testimonials-section">
   <span class="eyebrow small center">Real Results</span>
   <h2 class="center">What Our Family Says</h2>
@@ -317,14 +421,15 @@
   </div>
 </section>
 
+<!-- ── LIFESTYLE GALLERY ───────────────────────────────────────────────────── -->
 <section class="gallery-section">
   <span class="eyebrow small center">#ShrizaFamily</span>
   <h2 class="center">Share The Organic Lifestyle</h2>
   <p class="section-sub center">Tag us in your morning rituals and something timeless to get featured on our feed.</p>
 
   <div class="gallery-grid">
-    <div class="gallery-item" *ngFor="let image of galleryImages">
-      <img [src]="image" alt="Shriza lifestyle" />
+    <div class="gallery-item" *ngFor="let image of gallerySlots()">
+      <img [src]="image" alt="Shriza lifestyle" loading="lazy" />
     </div>
   </div>
 </section>

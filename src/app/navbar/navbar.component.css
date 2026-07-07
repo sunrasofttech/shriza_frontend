@@ -319,6 +319,18 @@
   text-decoration: none;
 }
 
+.notif-loading,
+.notif-empty {
+  padding: 16px 0;
+  text-align: center;
+  font-size: 0.82rem;
+  color: #9aa79b;
+}
+
+.notif-unread-item {
+  background: #f6fbf5;
+}
+
 /* ACCOUNT DROPDOWN */
 .account-menu {
   position: absolute;
@@ -332,7 +344,33 @@
   z-index: 50;
 }
 
+/* User avatar initial circle */
+.nav-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: #0d7644;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-right: 10px;
+}
+
+.nav-avatar.sm {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  font-size: 0.82rem;
+  margin-right: 10px;
+}
+
 .account-menu-head {
+  display: flex;
+  align-items: center;
   margin-bottom: 14px;
 }
 
@@ -594,6 +632,12 @@
     align-items: flex-start;
     gap: 10px;
     margin-bottom: 16px;
+  }
+
+  .account-identity {
+    display: flex;
+    align-items: center;
+    gap: 0;
   }
 
   .account-label {

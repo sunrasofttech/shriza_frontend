@@ -33,7 +33,12 @@
     </div>
 
     <p class="otp-desc">
-      We have simulated sending a 4-digit code to <strong>+91 {{ mobile || '98765 43210' }}</strong>. Please enter it below to verify your login session.
+      <ng-container *ngIf="purpose === 'register'">
+        We sent a 4-digit code to <strong>+91 {{ mobile }}</strong> to verify your mobile number.
+      </ng-container>
+      <ng-container *ngIf="purpose === 'login'">
+        We sent a 4-digit code to <strong>+91 {{ mobile }}</strong>. Enter it below to sign in.
+      </ng-container>
     </p>
 
     <div class="otp-boxes">
@@ -45,8 +50,8 @@
         maxlength="1"
         class="otp-box"
         [value]="digit"
-        (input)="onDigitInput(i, $event)"
-        (keydown)="onDigitKeydown(i, $event)">
+        (keydown)="onDigitKeydown(i, $event)"
+        (paste)="onDigitPaste(i, $event)">
     </div>
 
     <p class="resend-text">
@@ -56,11 +61,16 @@
       <a *ngIf="countdown === 0" (click)="resendOtp()">Resend OTP</a>
     </p>
 
-    <button class="verify-btn" (click)="verifyAndProceed()">
-      Verify &amp; Proceed
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
+    <div *ngIf="errorMsg" class="auth-error">{{ errorMsg }}</div>
+
+    <button class="verify-btn" (click)="verifyAndProceed()" [disabled]="loading">
+      <span *ngIf="loading">Verifying…</span>
+      <ng-container *ngIf="!loading">
+        Verify &amp; Proceed
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </ng-container>
     </button>
 
   </div>

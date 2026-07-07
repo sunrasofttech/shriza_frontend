@@ -1,5 +1,5 @@
 <div class="order-details-topbar">
-  <a class="back-link" routerLink="/home">
+  <a class="back-link" routerLink="/account">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
       <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
@@ -8,29 +8,54 @@
 
   <div class="title-block">
     <h1>Order Details</h1>
-    <span>ID: {{ order.orderNumber }} &bull; Date: {{ order.orderDate }}</span>
+    <span *ngIf="detail">ID: {{ detail.orderNumber }} &bull; {{ formatDate(detail.createdAt) }}</span>
   </div>
 
-  <button type="button" class="track-order-btn" routerLink="/track-order">
+  <a class="track-order-btn" *ngIf="detail" [routerLink]="['/track-order']" [queryParams]="{ orderNumber: detail.orderNumber }">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
       <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
       <circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.6" />
     </svg>
     Track<span class="track-text-full"> Order</span>
-  </button>
+  </a>
 </div>
 
-<div class="order-details-body">
+<!-- LOADING -->
+<div class="od-loading" *ngIf="loading">
+  <span class="od-spinner"></span>
+  <p>Loading order details…</p>
+</div>
+
+<!-- ERROR -->
+<p class="od-error" *ngIf="error && !loading">{{ error }}</p>
+
+<!-- RETURN SUCCESS BANNER -->
+<div class="return-success-banner" *ngIf="returnSuccess">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+    <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+  </svg>
+  {{ returnSuccess }}
+</div>
+
+<!-- CONTENT -->
+<div class="order-details-body" *ngIf="detail && !loading">
   <div class="details-main">
     <section class="details-card">
       <h2>Items Ordered</h2>
-      <div class="ordered-item-row" *ngFor="let item of order.items">
-        <img [src]="item.image" [alt]="item.name" />
+      <div class="ordered-item-row" *ngFor="let item of detail.items">
+        <img
+          [src]="item.thumbnailUrl || 'assets/images/placeholder.jpg'"
+          [alt]="item.productName"
+          (error)="$any($event.target).src='assets/images/placeholder.jpg'"
+        />
         <div class="ordered-item-info">
-          <strong>{{ item.name }}</strong>
-          <span>Size: {{ item.size }} &bull; Qty: {{ item.quantity }}</span>
+          <strong>{{ item.productName }}</strong>
+          <span>
+            <ng-container *ngIf="item.variantSize">Size: {{ item.variantSize }} &bull; </ng-container>
+            Qty: {{ item.quantity }}
+          </span>
         </div>
-        <span class="ordered-item-price">₹{{ item.price * item.quantity | number: '1.0-0' }}</span>
+        <span class="ordered-item-price">₹{{ item.totalPrice | number: '1.0-0' }}</span>
       </div>
     </section>
 
@@ -38,23 +63,25 @@
       <h2>Bill Details</h2>
       <div class="bill-row">
         <span>Items Subtotal:</span>
-        <strong>₹{{ order.itemsSubtotal | number: '1.2-2' }}</strong>
+        <strong>₹{{ detail.pricing.subtotal | number: '1.2-2' }}</strong>
       </div>
-      <div class="bill-row discount">
-        <span>Coupon Discount:</span>
-        <strong>-₹{{ order.discount }}</strong>
+      <div class="bill-row discount" *ngIf="detail.pricing.discountAmount > 0">
+        <span>Coupon Discount<ng-container *ngIf="detail.coupon"> ({{ detail.coupon.code }})</ng-container>:</span>
+        <strong>−₹{{ detail.pricing.discountAmount | number: '1.2-2' }}</strong>
       </div>
       <div class="bill-row">
         <span>Shipping &amp; Handling:</span>
-        <strong class="free">FREE</strong>
+        <strong [class.free]="detail.pricing.shippingFee === 0">
+          {{ detail.pricing.shippingFee === 0 ? 'FREE' : '₹' + (detail.pricing.shippingFee | number: '1.2-2') }}
+        </strong>
       </div>
       <div class="bill-row">
         <span>Estimated GST (5%):</span>
-        <strong>₹{{ order.tax }}</strong>
+        <strong>₹{{ detail.pricing.taxAmount | number: '1.2-2' }}</strong>
       </div>
       <div class="bill-total">
         <span>Total Bill Amount:</span>
-        <strong>₹{{ order.totalAmount }}</strong>
+        <strong>₹{{ detail.pricing.totalAmount | number: '1.2-2' }}</strong>
       </div>
     </section>
   </div>
@@ -62,25 +89,38 @@
   <div class="details-side">
     <section class="details-card">
       <h2>Delivery Address</h2>
-      <p class="address-name">{{ order.shippingAddress.name }}</p>
+      <p class="address-name">{{ detail.shippingAddress.fullName }}</p>
       <p class="address-lines">
-        {{ order.shippingAddress.line1 }}<br />
-        {{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} - {{ order.shippingAddress.zip }}
+        {{ detail.shippingAddress.addressLine1 }}<br />
+        {{ detail.shippingAddress.city }}, {{ detail.shippingAddress.state }} -
+        {{ detail.shippingAddress.pincode }}
       </p>
-      <p class="address-phone">Contact Phone: {{ order.shippingAddress.phone }}</p>
+      <p class="address-phone">Contact: {{ detail.shippingAddress.phone }}</p>
 
       <div class="meta-rows">
         <div class="meta-row">
+          <span>Order Status:</span>
+          <strong [class]="'status-badge ' + detail.status">{{ statusLabel(detail.status) }}</strong>
+        </div>
+        <div class="meta-row">
           <span>Payment Status:</span>
-          <strong class="paid">{{ order.paymentStatus }}</strong>
+          <strong>{{ statusLabel(detail.paymentStatus) }}</strong>
         </div>
         <div class="meta-row">
           <span>Paid via:</span>
-          <strong>{{ order.paymentMethod }}</strong>
+          <strong>{{ statusLabel(detail.paymentMethod) }}</strong>
         </div>
         <div class="meta-row">
           <span>Delivery Speed:</span>
-          <strong>{{ order.deliverySpeed }}</strong>
+          <strong>{{ detail.deliveryOption | titlecase }}</strong>
+        </div>
+        <div class="meta-row" *ngIf="detail.expectedDeliveryDate">
+          <span>Expected Delivery:</span>
+          <strong>{{ formatDate(detail.expectedDeliveryDate) }}</strong>
+        </div>
+        <div class="meta-row" *ngIf="detail.deliveredAt">
+          <span>Delivered On:</span>
+          <strong>{{ formatDate(detail.deliveredAt) }}</strong>
         </div>
       </div>
     </section>
@@ -93,12 +133,54 @@
       Download PDF Invoice
     </button>
 
-    <button type="button" class="refund-btn">
+    <!-- RETURN REQUEST BUTTON -->
+    <button type="button" class="refund-btn" *ngIf="canReturn && !showReturnForm && !returnSuccess" (click)="showReturnForm = true">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
         <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
         <path d="M12 8v4M12 15h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
       </svg>
       Request Return / Refund
     </button>
+
+    <!-- RETURN FORM -->
+    <div class="return-form" *ngIf="showReturnForm">
+      <h3>Return / Refund Request</h3>
+
+      <div class="return-field">
+        <label>Reason *</label>
+        <select [(ngModel)]="returnForm.reason">
+          <option value="">Select a reason</option>
+          <option *ngFor="let r of returnReasons" [value]="r.value">{{ r.label }}</option>
+        </select>
+      </div>
+
+      <div class="return-field">
+        <label>Request Type</label>
+        <div class="return-type-row">
+          <label class="return-radio">
+            <input type="radio" [(ngModel)]="returnForm.returnType" value="refund" /> Refund
+          </label>
+          <label class="return-radio">
+            <input type="radio" [(ngModel)]="returnForm.returnType" value="exchange" /> Exchange
+          </label>
+        </div>
+      </div>
+
+      <div class="return-field">
+        <label>Additional Details</label>
+        <textarea [(ngModel)]="returnForm.description" rows="3" placeholder="Describe the issue (optional)"></textarea>
+      </div>
+
+      <p class="return-error" *ngIf="returnError">{{ returnError }}</p>
+
+      <div class="return-form-actions">
+        <button type="button" class="return-submit-btn" (click)="submitReturn()" [disabled]="returnLoading || !returnForm.reason">
+          {{ returnLoading ? 'Submitting…' : 'Submit Request' }}
+        </button>
+        <button type="button" class="return-cancel-btn" (click)="showReturnForm = false" [disabled]="returnLoading">
+          Cancel
+        </button>
+      </div>
+    </div>
   </div>
 </div>
