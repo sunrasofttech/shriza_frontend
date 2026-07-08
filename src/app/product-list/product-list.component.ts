@@ -201,7 +201,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     if (p.badges.isNewArrival) return 'New Arrival';
     if (p.pricing.discountPercent) return `${p.pricing.discountPercent}% OFF`;
     if (p.badges.isTrending)   return 'Trending';
-    if (p.badges.isFeatured)   return 'Featured';
+    if (p.badges.isFeatured)   return 'Featured' ;
     return null;
   }
 
