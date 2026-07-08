@@ -111,63 +111,75 @@
     </nav>
 
     <div class="account-card">
-      <div class="account-head">
-        <div class="account-identity">
-          <span class="nav-avatar">{{ userInitial }}</span>
-          <div>
-            <span class="account-label">Signed in as</span>
-            <strong>{{ displayName }}</strong>
-            <span class="account-email">{{ displayEmail }}</span>
+
+      <!-- Not logged in -->
+      <ng-container *ngIf="!user">
+        <p class="mobile-guest-msg">Sign in to access your orders, wishlist, and account.</p>
+        <a routerLink="/login" class="mobile-login-btn" (click)="closeAll()">Login</a>
+        <a routerLink="/signup" class="mobile-signup-link" (click)="closeAll()">New here? Create an account</a>
+      </ng-container>
+
+      <!-- Logged in -->
+      <ng-container *ngIf="user">
+        <div class="account-head">
+          <div class="account-identity">
+            <span class="nav-avatar">{{ userInitial }}</span>
+            <div>
+              <span class="account-label">Signed in as</span>
+              <strong>{{ displayName }}</strong>
+              <span class="account-email">{{ displayEmail }}</span>
+            </div>
+          </div>
+          <div class="account-wallet">
+            <span>Wallet Balance</span>
+            <strong>₹{{ walletBalance }}</strong>
           </div>
         </div>
-        <div class="account-wallet">
-          <span>Wallet Balance</span>
-          <strong>₹{{ walletBalance }}</strong>
+
+        <div class="account-grid">
+          <a routerLink="/account" (click)="closeAll()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="3.4" stroke="#374a37" stroke-width="1.6" />
+              <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+            My Profile
+          </a>
+          <a routerLink="/account" (click)="closeAll()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" />
+              <path d="M9 8a3 3 0 0 1 6 0" stroke="#374a37" stroke-width="1.6" />
+            </svg>
+            My Orders
+          </a>
+          <a routerLink="/account" (click)="closeAll()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#374a37" stroke-width="1.6" />
+              <path d="M3 10h18" stroke="#374a37" stroke-width="1.6" />
+            </svg>
+            Wallet
+          </a>
+          <a routerLink="/account" (click)="closeAll()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="3" stroke="#374a37" stroke-width="1.6" />
+              <path
+                d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h.1a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"
+                stroke="#374a37"
+                stroke-width="1.3"
+                stroke-linejoin="round"
+              />
+            </svg>
+            Settings
+          </a>
         </div>
-      </div>
 
-      <div class="account-grid">
-        <a routerLink="/account" (click)="closeAll()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="8" r="3.4" stroke="#374a37" stroke-width="1.6" />
-            <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" />
+        <button type="button" class="signout-btn" (click)="signOut()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M15 17l5-5-5-5M20 12H9M13 5H5v14h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
-          My Profile
-        </a>
-        <a routerLink="/account" (click)="closeAll()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" />
-            <path d="M9 8a3 3 0 0 1 6 0" stroke="#374a37" stroke-width="1.6" />
-          </svg>
-          My Orders
-        </a>
-        <a routerLink="/account" (click)="closeAll()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#374a37" stroke-width="1.6" />
-            <path d="M3 10h18" stroke="#374a37" stroke-width="1.6" />
-          </svg>
-          Wallet
-        </a>
-        <a routerLink="/account" (click)="closeAll()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="3" stroke="#374a37" stroke-width="1.6" />
-            <path
-              d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h.1a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"
-              stroke="#374a37"
-              stroke-width="1.3"
-              stroke-linejoin="round"
-            />
-          </svg>
-          Settings
-        </a>
-      </div>
+          Sign Out
+        </button>
+      </ng-container>
 
-      <button type="button" class="signout-btn" (click)="signOut()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <path d="M15 17l5-5-5-5M20 12H9M13 5H5v14h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-        Sign Out
-      </button>
     </div>
   </div>
 
@@ -247,65 +259,77 @@
       </button>
 
       <div class="account-menu" *ngIf="isAccountMenuOpen">
-        <div class="account-menu-head">
-          <span class="nav-avatar sm">{{ userInitial }}</span>
-          <div>
-            <span class="account-label">Signed in as</span>
-            <strong>{{ displayName }}</strong>
-            <span class="account-email">{{ displayEmail }}</span>
+
+        <!-- Not logged in -->
+        <ng-container *ngIf="!user">
+          <p class="account-menu-guest">Sign in to view your orders, wishlist, and more.</p>
+          <a routerLink="/login" class="account-menu-login-btn" (click)="closeAll()">Login</a>
+          <a routerLink="/signup" class="account-menu-signup-link" (click)="closeAll()">New here? Create an account</a>
+        </ng-container>
+
+        <!-- Logged in -->
+        <ng-container *ngIf="user">
+          <div class="account-menu-head">
+            <span class="nav-avatar sm">{{ userInitial }}</span>
+            <div>
+              <span class="account-label">Signed in as</span>
+              <strong>{{ displayName }}</strong>
+              <span class="account-email">{{ displayEmail }}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="account-menu-wallet">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#0d7644" stroke-width="1.6" />
-            <path d="M3 10h18" stroke="#0d7644" stroke-width="1.6" />
-          </svg>
-          Bal: ₹{{ walletBalance }}
-        </div>
+          <div class="account-menu-wallet">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#0d7644" stroke-width="1.6" />
+              <path d="M3 10h18" stroke="#0d7644" stroke-width="1.6" />
+            </svg>
+            Bal: ₹{{ walletBalance }}
+          </div>
 
-        <nav class="account-menu-links">
-          <a routerLink="/account" (click)="closeAll()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="8" r="3.4" stroke="#374a37" stroke-width="1.6" />
-              <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" />
-            </svg>
-            My Profile
-          </a>
-          <a routerLink="/account" (click)="closeAll()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" />
-              <path d="M9 8a3 3 0 0 1 6 0" stroke="#374a37" stroke-width="1.6" />
-            </svg>
-            My Orders
-          </a>
-          <a routerLink="/account" (click)="closeAll()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#374a37" stroke-width="1.6" />
-              <path d="M3 10h18" stroke="#374a37" stroke-width="1.6" />
-            </svg>
-            My Wallet
-          </a>
-          <a routerLink="/account" (click)="closeAll()">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="3" stroke="#374a37" stroke-width="1.6" />
-              <path
-                d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h.1a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"
-                stroke="#374a37"
-                stroke-width="1.3"
-                stroke-linejoin="round"
-              />
-            </svg>
-            Settings
-          </a>
-        </nav>
+          <nav class="account-menu-links">
+            <a routerLink="/account" (click)="closeAll()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="8" r="3.4" stroke="#374a37" stroke-width="1.6" />
+                <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+              My Profile
+            </a>
+            <a routerLink="/account" (click)="closeAll()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" />
+                <path d="M9 8a3 3 0 0 1 6 0" stroke="#374a37" stroke-width="1.6" />
+              </svg>
+              My Orders
+            </a>
+            <a routerLink="/account" (click)="closeAll()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#374a37" stroke-width="1.6" />
+                <path d="M3 10h18" stroke="#374a37" stroke-width="1.6" />
+              </svg>
+              My Wallet
+            </a>
+            <a routerLink="/account" (click)="closeAll()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="3" stroke="#374a37" stroke-width="1.6" />
+                <path
+                  d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5v.2a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5h.1a1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"
+                  stroke="#374a37"
+                  stroke-width="1.3"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              Settings
+            </a>
+          </nav>
 
-        <button type="button" class="account-menu-signout" (click)="signOut()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M15 17l5-5-5-5M20 12H9M13 5H5v14h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          Sign Out
-        </button>
+          <button type="button" class="account-menu-signout" (click)="signOut()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M15 17l5-5-5-5M20 12H9M13 5H5v14h8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Sign Out
+          </button>
+        </ng-container>
+
       </div>
     </div>
   </div>

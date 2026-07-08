@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService, ProductSummary, ProductDetail, ProductImage, ProductVariant } from '../product.service';
 import { CartService } from '../cart.service';
 import { WishlistService } from '../wishlist.service';
+import { AuthService } from '../auth.service';
 
 interface RatingBar { stars: number; percent: number; }
 interface Faq { id: string; question: string; answer: string; open: boolean; }
@@ -73,7 +74,8 @@ export class ProductDetailComponent implements OnInit {
     private router: Router,
     private productService: ProductService,
     private cartService: CartService,
-    private wishlistService: WishlistService
+    private wishlistService: WishlistService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -190,6 +192,7 @@ export class ProductDetailComponent implements OnInit {
   }
 
   addToCart(): void {
+    if (!this.authService.isLoggedIn) { this.router.navigate(['/login']); return; }
     if (this.cartLoading || !this.isInStock) return;
     this.cartLoading = true;
     this.cartMsg = '';
@@ -209,6 +212,7 @@ export class ProductDetailComponent implements OnInit {
   }
 
   buyNow(): void {
+    if (!this.authService.isLoggedIn) { this.router.navigate(['/login']); return; }
     if (this.cartLoading || !this.isInStock) return;
     this.cartLoading = true;
     const variantId = this.selectedVariant?.id ?? null;

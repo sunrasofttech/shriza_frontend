@@ -43,14 +43,14 @@
 
     <div class="otp-boxes">
       <input
-        *ngFor="let digit of digits; let i = index"
+        *ngFor="let digit of digits; let i = index; trackBy: trackByIndex"
         #digitInput
-        type="text"
-        inputmode="numeric"
+        type="tel"
         maxlength="1"
+        autocomplete="one-time-code"
         class="otp-box"
-        [value]="digit"
         (keydown)="onDigitKeydown(i, $event)"
+        (input)="onDigitInput(i, $event)"
         (paste)="onDigitPaste(i, $event)">
     </div>
 

@@ -44,6 +44,8 @@ export class VerifyOtpComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 1000);
   }
 
+  trackByIndex(index: number): number { return index; }
+
   onDigitKeydown(index: number, event: KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
     const inputs = this.digitInputs.toArray();
@@ -57,12 +59,29 @@ export class VerifyOtpComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (event.key === 'ArrowLeft' && index > 0)  { inputs[index - 1].nativeElement.focus(); return; }
     if (event.key === 'ArrowRight' && index < 3) { inputs[index + 1].nativeElement.focus(); return; }
+
+    // key === 'Unidentified' means Android virtual keyboard — let onDigitInput handle it
+    if (event.key === 'Unidentified') return;
+
+    // Block non-digit printable keys
     if (!/^\d$/.test(event.key)) { event.preventDefault(); return; }
 
+    // Desktop / iOS: handle digit directly, prevent default so input event doesn't also fire
     event.preventDefault();
     this.digits[index] = event.key;
     input.value = event.key;
     if (index < this.digits.length - 1) inputs[index + 1].nativeElement.focus();
+  }
+
+  onDigitInput(index: number, event: Event): void {
+    // Handles Android where keydown.key = 'Unidentified' (no preventDefault was called)
+    const input = event.target as HTMLInputElement;
+    const digit = input.value.replace(/\D/g, '').charAt(0) || '';
+    this.digits[index] = digit;
+    input.value = digit;
+    if (digit && index < this.digits.length - 1) {
+      this.digitInputs.toArray()[index + 1].nativeElement.focus();
+    }
   }
 
   onDigitPaste(index: number, event: ClipboardEvent): void {

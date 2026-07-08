@@ -5,6 +5,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { ProductService, ProductSummary, FilterMeta } from '../product.service';
 import { CartService } from '../cart.service';
 import { WishlistService } from '../wishlist.service';
+import { AuthService } from '../auth.service';
 
 type ViewMode = 'grid' | 'list';
 
@@ -55,7 +56,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     public wishlistService: WishlistService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -210,6 +212,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // ── Cart ────────────────────────────────────────────────────────────────────
 
   addToCart(product: ProductSummary): void {
+    if (!this.authService.isLoggedIn) { this.router.navigate(['/login']); return; }
     if (this.addingCartId === product.id) return;
     this.addingCartId = product.id;
     this.cartService.addItem(product.id, null, 1).subscribe({
@@ -235,6 +238,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   }
 
   buyNow(product: ProductSummary): void {
+    if (!this.authService.isLoggedIn) { this.router.navigate(['/login']); return; }
     if (this.addingCartId === product.id) return;
     this.addingCartId = product.id;
     this.cartService.addItem(product.id, null, 1).subscribe({

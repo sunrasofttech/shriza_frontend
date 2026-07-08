@@ -6,6 +6,7 @@ import { takeUntil } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { CartService } from '../cart.service';
 import { WishlistService } from '../wishlist.service';
+import { AuthService } from '../auth.service';
 
 // ── API response interfaces ──────────────────────────────────────────────────
 
@@ -156,7 +157,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private http: HttpClient,
     private router: Router,
     public cartService: CartService,
-    public wishlistService: WishlistService
+    public wishlistService: WishlistService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -293,6 +295,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // ── Cart actions ──────────────────────────────────────────────────────────
 
   addToCart(product: HomeProduct): void {
+    if (!this.authService.isLoggedIn) { this.router.navigate(['/login']); return; }
     if (this.addingToCartId === product.id) return;
     this.addingToCartId = product.id;
     this.cartService.addItem(product.id, null, 1).subscribe({
@@ -307,6 +310,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   buyNow(product: HomeProduct): void {
+    if (!this.authService.isLoggedIn) { this.router.navigate(['/login']); return; }
     if (this.addingToCartId === product.id || !product.stock.inStock) return;
     this.addingToCartId = product.id;
     this.cartService.addItem(product.id, null, 1).subscribe({
