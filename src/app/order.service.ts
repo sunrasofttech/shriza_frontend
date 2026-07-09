@@ -36,6 +36,15 @@ export interface PlacedOrder {
   paymentMethod: string;
   status: string;
   requiresPaymentGateway: boolean;
+  razorpayOrderId?: string;
+  razorpayKeyId?: string;
+}
+
+export interface RetryPaymentData {
+  orderNumber: string;
+  razorpayOrderId: string;
+  razorpayKeyId: string;
+  totalAmount: number;
 }
 
 // ── Order List ─────────────────────────────────────────────────────────────────
@@ -223,6 +232,27 @@ export class OrderService {
     return this.http.post<any>(`${this.BASE}/checkout`, payload, this.OPTS).pipe(
       map(r => r.data as PlacedOrder),
       tap(order => { this.placedOrder = order; })
+    );
+  }
+
+  // ── Verify Payment ───────────────────────────────────────────────────────────
+
+  verifyPayment(payload: {
+    orderNumber: string;
+    razorpayPaymentId: string;
+    razorpayOrderId: string;
+    razorpaySignature: string;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.BASE}/checkout/verify-payment`, payload, this.OPTS).pipe(
+      map(r => r.data)
+    );
+  }
+
+  // ── Retry Payment (get fresh Razorpay order for existing pending order) ──────
+
+  retryPayment(orderNumber: string): Observable<RetryPaymentData> {
+    return this.http.post<any>(`${this.BASE}/${orderNumber}/retry-payment`, {}, this.OPTS).pipe(
+      map(r => r.data as RetryPaymentData)
     );
   }
 

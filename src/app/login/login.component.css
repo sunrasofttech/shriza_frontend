@@ -182,7 +182,7 @@ label {
   align-items: center;
 }
 
-.input-icon svg {
+.input-icon > svg {
   position: absolute;
   left: 16px;
   pointer-events: none;
@@ -200,6 +200,27 @@ input {
 
 .input-icon input {
   padding-left: 44px;
+}
+
+.input-icon input.has-eye-toggle {
+  padding-right: 46px;
+}
+
+.eye-btn {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #8a978a;
+}
+
+.eye-btn:hover svg path,
+.eye-btn:hover svg circle {
+  stroke: #0d7644;
 }
 
 .login-btn {

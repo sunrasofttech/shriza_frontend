@@ -1,16 +1,25 @@
 <div class="account-body">
   <aside class="account-sidebar">
     <div class="profile-summary-card">
-      <span class="avatar">{{ account.initial }}</span>
+      <div class="sidebar-avatar-wrap">
+        <img
+          *ngIf="resolveAvatarUrl(profileUser?.avatarThumbnailUrl || profileUser?.avatarUrl)"
+          [src]="resolveAvatarUrl(profileUser?.avatarThumbnailUrl || profileUser?.avatarUrl)!"
+          class="sidebar-avatar-img"
+          alt="Profile picture"
+          (error)="$any($event.target).style.display='none'"
+        />
+        <span class="avatar" *ngIf="!resolveAvatarUrl(profileUser?.avatarThumbnailUrl || profileUser?.avatarUrl)">{{ userInitial }}</span>
+      </div>
       <div class="profile-text">
-        <strong>{{ account.fullName }}</strong>
-        <span class="profile-email">{{ account.email }}</span>
+        <strong>{{ profileUser?.name || '—' }}</strong>
+        <span class="profile-email">{{ profileUser?.email || profileUser?.phone || '—' }}</span>
         <span class="wallet-pill">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
             <path d="M3 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z" stroke="#0d7644" stroke-width="1.5" />
             <circle cx="16.5" cy="13" r="1.4" fill="#0d7644" />
           </svg>
-          Wallet: ₹{{ account.walletBalance }}
+          Wallet: ₹{{ walletBalance }}
         </span>
       </div>
     </div>
@@ -126,6 +135,40 @@
       <h1>My Profile</h1>
       <p class="content-sub">Manage your personal credentials and contact channels.</p>
 
+      <!-- Avatar section -->
+      <div class="avatar-section">
+        <div class="avatar-wrap">
+          <img
+            *ngIf="resolveAvatarUrl(profileUser?.avatarUrl)"
+            [src]="resolveAvatarUrl(profileUser?.avatarUrl)!"
+            class="avatar-full"
+            alt="Profile picture"
+            (error)="$any($event.target).style.display='none'"
+          />
+          <span class="avatar avatar-large" *ngIf="!resolveAvatarUrl(profileUser?.avatarUrl)">{{ userInitial }}</span>
+          <label class="avatar-overlay" [class.saving]="avatarSaving">
+            <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onAvatarChange($event)" [disabled]="avatarSaving" />
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M7 18a4 4 0 0 1-1-7.9A5 5 0 0 1 16 8a4.5 4.5 0 0 1 1 9" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+              <path d="M12 21v-9M9 15l3-3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>{{ avatarSaving ? 'Uploading…' : 'Change' }}</span>
+          </label>
+        </div>
+        <div class="avatar-actions">
+          <button
+            type="button"
+            class="remove-avatar-btn"
+            *ngIf="profileUser?.avatarUrl"
+            [disabled]="avatarSaving"
+            (click)="doRemoveAvatar()"
+          >Remove Photo</button>
+          <p class="avatar-hint">JPG, PNG or WebP · Max 2 MB</p>
+          <p class="avatar-error" *ngIf="avatarError">{{ avatarError }}</p>
+          <p class="avatar-success" *ngIf="avatarSuccess">Avatar updated successfully.</p>
+        </div>
+      </div>
+
       <div class="profile-form">
         <div class="form-field">
           <label>Full Name</label>
@@ -134,25 +177,30 @@
               <circle cx="12" cy="8" r="3.4" stroke="#8a978a" stroke-width="1.6" />
               <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#8a978a" stroke-width="1.6" stroke-linecap="round" />
             </svg>
-            <input type="text" [value]="account.fullName" *ngIf="!isEditingProfile" readonly />
-            <input type="text" [(ngModel)]="draftProfile.fullName" name="fullName" *ngIf="isEditingProfile" />
+            <input type="text" [value]="profileUser?.name || ''" *ngIf="!isEditingProfile" readonly />
+            <input type="text" [(ngModel)]="draftName" name="fullName" *ngIf="isEditingProfile" placeholder="Your name" />
           </div>
         </div>
 
         <div class="form-field">
-          <label>Email Address</label>
+          <label>
+            Email Address
+            <span class="readonly-badge">read-only</span>
+          </label>
           <div class="input-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="5" width="18" height="14" rx="2.4" stroke="#8a978a" stroke-width="1.6" />
               <path d="M4 7l8 6 8-6" stroke="#8a978a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            <input type="email" [value]="account.email" *ngIf="!isEditingProfile" readonly />
-            <input type="email" [(ngModel)]="draftProfile.email" name="email" *ngIf="isEditingProfile" />
+            <input type="email" [value]="profileUser?.email || '—'" readonly />
           </div>
         </div>
 
         <div class="form-field">
-          <label>Mobile Phone</label>
+          <label>
+            Mobile Phone
+            <span class="readonly-badge">read-only</span>
+          </label>
           <div class="input-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
               <path
@@ -162,20 +210,22 @@
                 stroke-linejoin="round"
               />
             </svg>
-            <input type="text" [value]="account.mobile" *ngIf="!isEditingProfile" readonly />
-            <input type="text" [(ngModel)]="draftProfile.mobile" name="mobile" *ngIf="isEditingProfile" />
+            <input type="text" [value]="profileUser?.phone || '—'" readonly />
           </div>
         </div>
+
+        <p class="profile-save-error" *ngIf="profileSaveError">{{ profileSaveError }}</p>
+        <p class="profile-save-success" *ngIf="profileSaveSuccess">Profile saved successfully.</p>
 
         <button type="button" class="edit-profile-btn" *ngIf="!isEditingProfile" (click)="editProfile()">Edit Profile</button>
 
         <div class="edit-actions" *ngIf="isEditingProfile">
           <button type="button" class="cancel-btn" (click)="cancelEdit()">Cancel</button>
-          <button type="button" class="save-btn" (click)="saveProfile()">
+          <button type="button" class="save-btn" [disabled]="profileSaving" (click)="saveProfile()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
               <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-            Save Changes
+            {{ profileSaving ? 'Saving…' : 'Save Changes' }}
           </button>
         </div>
       </div>
@@ -380,7 +430,7 @@
       <div class="wallet-summary-grid">
         <div class="wallet-balance-card">
           <span class="wallet-balance-label">Shriza Wallet</span>
-          <strong>₹{{ account.walletBalance }}</strong>
+          <strong>₹{{ walletBalance }}</strong>
           <p>Use balance for seamless one-click checkout and earned instant cashbacks.</p>
           <svg class="wallet-bg-icon" width="64" height="64" viewBox="0 0 24 24" fill="none">
             <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#fff" stroke-width="1.4" />

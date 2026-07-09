@@ -60,6 +60,8 @@ export class LoginComponent {
     }
   }
 
+  togglePassword(): void { this.hidePassword = !this.hidePassword; }
+
   loginWithGoogle(): void {}
   loginWithFacebook(): void {}
 

@@ -71,35 +71,32 @@
 
       <!-- UPI PANEL -->
       <div class="method-panel" *ngIf="selectedMethod === 'upi'">
-        <h3>Select UPI App</h3>
+        <h3>Pay via UPI</h3>
         <div class="upi-app-grid">
           <button type="button" *ngFor="let app of upiApps" [class.active]="selectedUpiApp === app" (click)="selectUpiApp(app)">
             {{ app }}
           </button>
         </div>
-        <label class="field-label">Enter UPI ID: *</label>
-        <input type="text" placeholder="username@okaxis" [(ngModel)]="upiId" />
+        <label class="field-label">Enter UPI ID *</label>
+        <input type="text" placeholder="username@okaxis" [(ngModel)]="upiId" [disabled]="loading || verifying" />
+        <p class="rzp-note">You'll confirm the payment via your UPI app after clicking Pay.</p>
       </div>
 
-      <!-- CARDS PANEL -->
+      <!-- CARDS PANEL — Razorpay handles card entry -->
       <div class="method-panel" *ngIf="selectedMethod === 'cards'">
-        <h3>Enter Card Details</h3>
-        <div class="card-form-grid">
-          <div class="form-field full">
-            <label>Card Number</label>
-            <input type="text" placeholder="4111 2222 3333 4444" [(ngModel)]="card.number" />
+        <div class="rzp-info-panel">
+          <div class="rzp-shield">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3l8 3v6c0 5-3.5 8.5-8 9.5C7.5 20.5 4 17 4 12V6l8-3Z" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
+              <path d="M8.5 12l2.5 2.5L15 9" stroke="#0d7644" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
           </div>
-          <div class="form-field full">
-            <label>Cardholder Name</label>
-            <input type="text" placeholder="JOHN DOE" [(ngModel)]="card.name" />
-          </div>
-          <div class="form-field">
-            <label>Expiry Date</label>
-            <input type="text" placeholder="MM/YY" [(ngModel)]="card.expiry" />
-          </div>
-          <div class="form-field">
-            <label>CVV / CVC</label>
-            <input type="text" placeholder="***" [(ngModel)]="card.cvv" />
+          <div>
+            <h3>Secure Card Payment via Razorpay</h3>
+            <p>You'll enter your card details in Razorpay's PCI-DSS encrypted checkout popup. We never store or see your card number, CVV, or expiry date.</p>
+            <div class="rzp-badges">
+              <span>Visa</span><span>Mastercard</span><span>RuPay</span><span>Amex</span>
+            </div>
           </div>
         </div>
       </div>
@@ -125,19 +122,24 @@
           </svg>
           <div class="insufficient-text">
             <strong>Insufficient Wallet Balance</strong>
-            <p>You need ₹{{ walletShortfall | number: '1.2-2' }} more to complete this order.</p>
-            <button type="button" class="add-pay-btn">Add &amp; Pay ₹{{ walletShortfall | number: '1.2-2' }}</button>
+            <p>You need ₹{{ walletShortfall | number: '1.2-2' }} more to complete this order. Please add funds or choose a different payment method.</p>
           </div>
         </div>
       </div>
 
-      <!-- BANKING PANEL -->
+      <!-- BANKING PANEL — Razorpay handles bank redirect -->
       <div class="method-panel" *ngIf="selectedMethod === 'banking'">
-        <h3>Select Popular Bank</h3>
-        <div class="bank-grid">
-          <button type="button" *ngFor="let bank of banks" [class.active]="selectedBank === bank" (click)="selectBank(bank)">
-            {{ bank }}
-          </button>
+        <div class="rzp-info-panel">
+          <div class="rzp-shield">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <path d="M3 10l9-6 9 6" stroke="#0d7644" stroke-width="1.6" stroke-linejoin="round" />
+              <path d="M5 10v9M10 10v9M14 10v9M19 10v9M3 19h18" stroke="#0d7644" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div>
+            <h3>Net Banking via Razorpay</h3>
+            <p>You'll choose your bank and complete the transfer securely inside Razorpay's encrypted checkout. All major Indian banks are supported.</p>
+          </div>
         </div>
       </div>
 
@@ -148,11 +150,12 @@
           <circle cx="12" cy="12" r="2.6" stroke="#0d7644" stroke-width="1.5" />
         </svg>
         <h3>Cash On Delivery (COD)</h3>
-        <p>Pay in cash or scan QR code when your shipment arrives. Additional ₹25 COD handling fee might apply for remote pin codes.</p>
+        <p>Pay in cash when your order arrives. A ₹25 COD handling fee may apply for certain pin codes.</p>
       </div>
     </section>
   </div>
 
+  <!-- ORDER SUMMARY SIDEBAR -->
   <aside class="order-summary-card">
     <h2>Order Summary</h2>
 
@@ -189,18 +192,26 @@
       </div>
     </ng-container>
 
-    <p class="pay-error" *ngIf="errorMsg">{{ errorMsg }}</p>
+    <!-- Verifying payment overlay -->
+    <div class="verifying-state" *ngIf="verifying">
+      <div class="verifying-spinner"></div>
+      <p>Verifying your payment with our server…<br /><small>Please do not close this page.</small></p>
+    </div>
 
-    <button type="button" class="pay-btn" (click)="payAndComplete()" [disabled]="loading || !pricing">
-      <ng-container *ngIf="!loading">
-        Pay &amp; Complete Order
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </ng-container>
-      <ng-container *ngIf="loading">Processing…</ng-container>
+    <p class="pay-error" *ngIf="errorMsg && !verifying">{{ errorMsg }}</p>
+
+    <button
+      type="button"
+      class="pay-btn"
+      (click)="payAndComplete()"
+      [disabled]="loading || verifying || !pricing || (selectedMethod === 'wallet' && walletShortfall > 0)"
+    >
+      {{ btnLabel }}
+      <svg *ngIf="!loading && !verifying" width="15" height="15" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
     </button>
 
-    <p class="terms-text">By clicking above, you agree to our terms of shipping and refund policy.</p>
+    <p class="terms-text">By proceeding, you agree to our terms, refund and shipping policy.</p>
   </aside>
 </div>
