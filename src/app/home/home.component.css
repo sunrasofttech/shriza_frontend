@@ -56,8 +56,8 @@ h2 {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  gap: 48px;
-  padding: 56px 48px;
+  gap: 32px;
+  padding: 28px 48px 36px;
   background: linear-gradient(135deg, #0e3a22 0%, #195c33 55%, #2f7a4a 100%);
   color: #fff;
 }
@@ -68,34 +68,34 @@ h2 {
 
 .hero-section .eyebrow {
   background: rgba(255, 255, 255, 0.12);
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 999px;
   color: #d9f0e1;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 .hero-section h1 {
   font-family: 'Cormorant Garamond', serif;
-  font-size: clamp(2.6rem, 4.2vw, 4rem);
-  line-height: 1.08;
-  margin: 0 0 20px;
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1.1;
+  margin: 0 0 12px;
   font-weight: 700;
 }
 
 .hero-section p {
   max-width: 480px;
-  font-size: 1rem;
-  line-height: 1.8;
-  margin-bottom: 30px;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  margin-bottom: 18px;
   color: #d6e6da;
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 12px;
 }
 
 .primary-btn,
@@ -103,8 +103,8 @@ h2 {
 .buy-btn {
   border: none;
   border-radius: 999px;
-  padding: 14px 26px;
-  font-size: 0.92rem;
+  padding: 11px 22px;
+  font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -132,9 +132,9 @@ h2 {
 
 .hero-visual img {
   width: 100%;
-  max-width: 520px;
-  border-radius: 24px;
-  box-shadow: 0 36px 72px rgba(0, 0, 0, 0.25);
+  max-width: 380px;
+  border-radius: 18px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25);
   object-fit: cover;
 }
 
