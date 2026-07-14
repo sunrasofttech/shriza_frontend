@@ -137,28 +137,28 @@
         </div>
 
         <div class="account-grid">
-          <a routerLink="/account" (click)="closeAll()">
+          <a routerLink="/account" [queryParams]="{ tab: 'profile' }" (click)="closeAll()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="8" r="3.4" stroke="#374a37" stroke-width="1.6" />
               <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" />
             </svg>
             My Profile
           </a>
-          <a routerLink="/account" (click)="closeAll()">
+          <a routerLink="/account" [queryParams]="{ tab: 'orders' }" (click)="closeAll()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" />
               <path d="M9 8a3 3 0 0 1 6 0" stroke="#374a37" stroke-width="1.6" />
             </svg>
             My Orders
           </a>
-          <a routerLink="/account" (click)="closeAll()">
+          <a routerLink="/account" [queryParams]="{ tab: 'wallet' }" (click)="closeAll()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#374a37" stroke-width="1.6" />
               <path d="M3 10h18" stroke="#374a37" stroke-width="1.6" />
             </svg>
             Wallet
           </a>
-          <a routerLink="/account" (click)="closeAll()">
+          <a routerLink="/account" [queryParams]="{ tab: 'settings' }" (click)="closeAll()">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <circle cx="12" cy="12" r="3" stroke="#374a37" stroke-width="1.6" />
               <path
@@ -226,7 +226,7 @@
           </div>
         </div>
 
-        <a class="notif-view-all" routerLink="/account" (click)="closeAll()">View all notifications</a>
+        <a class="notif-view-all" routerLink="/account" [queryParams]="{ tab: 'notifications' }" (click)="closeAll()">View all notifications</a>
       </div>
     </div>
 
@@ -287,28 +287,28 @@
           </div>
 
           <nav class="account-menu-links">
-            <a routerLink="/account" (click)="closeAll()">
+            <a routerLink="/account" [queryParams]="{ tab: 'profile' }" (click)="closeAll()">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="8" r="3.4" stroke="#374a37" stroke-width="1.6" />
                 <path d="M4.5 20c1.2-3.6 4-5.4 7.5-5.4s6.3 1.8 7.5 5.4" stroke="#374a37" stroke-width="1.6" stroke-linecap="round" />
               </svg>
               My Profile
             </a>
-            <a routerLink="/account" (click)="closeAll()">
+            <a routerLink="/account" [queryParams]="{ tab: 'orders' }" (click)="closeAll()">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M6 8h12l-1.2 11.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 8Z" stroke="#374a37" stroke-width="1.6" stroke-linejoin="round" />
                 <path d="M9 8a3 3 0 0 1 6 0" stroke="#374a37" stroke-width="1.6" />
               </svg>
               My Orders
             </a>
-            <a routerLink="/account" (click)="closeAll()">
+            <a routerLink="/account" [queryParams]="{ tab: 'wallet' }" (click)="closeAll()">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <rect x="3" y="6" width="18" height="13" rx="2.4" stroke="#374a37" stroke-width="1.6" />
                 <path d="M3 10h18" stroke="#374a37" stroke-width="1.6" />
               </svg>
               My Wallet
             </a>
-            <a routerLink="/account" (click)="closeAll()">
+            <a routerLink="/account" [queryParams]="{ tab: 'settings' }" (click)="closeAll()">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="3" stroke="#374a37" stroke-width="1.6" />
                 <path

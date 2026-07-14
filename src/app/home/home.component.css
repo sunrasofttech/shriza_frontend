@@ -53,14 +53,42 @@ h2 {
 
 /* HERO */
 .hero-section {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
   gap: 32px;
-  padding: 28px 48px 36px;
+  padding: 28px 72px 36px;
   background: linear-gradient(135deg, #0e3a22 0%, #195c33 55%, #2f7a4a 100%);
   color: #fff;
 }
+
+/* HERO SLIDE BUTTONS */
+.hero-slide-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.hero-slide-btn:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+.hero-slide-prev { left: 18px; }
+.hero-slide-next { right: 18px; }
 
 .hero-copy {
   max-width: 560px;
@@ -372,7 +400,8 @@ h2 {
 }
 
 /* PRODUCT GRID */
-.product-grid {
+.product-grid,
+.product-grid.four-col {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 14px;
@@ -676,7 +705,13 @@ h2 {
     padding-right: 28px;
   }
 
-  .product-grid {
+  .hero-section {
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+
+  .product-grid,
+  .product-grid.four-col {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -757,6 +792,14 @@ h2 {
     height: 72px;
   }
 
+  .hero-section {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+
+  .hero-slide-prev { left: 12px; }
+  .hero-slide-next { right: 12px; }
+
   .product-grid,
   .product-grid.four-col {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -773,10 +816,23 @@ h2 {
     grid-template-columns: 1fr 1fr;
   }
 
+  .hero-section {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .hero-slide-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .hero-slide-prev { left: 6px; }
+  .hero-slide-next { right: 6px; }
+
   .product-grid,
   .product-grid.four-col {
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
   }
 
   .product-info h3 {

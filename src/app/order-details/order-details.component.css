@@ -97,6 +97,7 @@ img {
   display: flex;
   align-items: center;
   gap: 14px;
+  margin: 10px;
 }
 
 .ordered-item-row img {

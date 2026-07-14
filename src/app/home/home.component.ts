@@ -138,7 +138,30 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   // ── Hero banner cycling ───────────────────────────────────────────────────
   heroBannerIndex = 0;
+  private slideTimer: any;
+
   get activeBanner(): HomeBanner | null { return this.heroBanners[this.heroBannerIndex] ?? null; }
+
+  prevBanner(): void {
+    const len = Math.max(this.heroBanners.length, 1);
+    this.heroBannerIndex = (this.heroBannerIndex - 1 + len) % len;
+    this.restartSlideTimer();
+  }
+
+  nextBanner(): void {
+    const len = Math.max(this.heroBanners.length, 1);
+    this.heroBannerIndex = (this.heroBannerIndex + 1) % len;
+    this.restartSlideTimer();
+  }
+
+  private startSlideTimer(): void {
+    this.slideTimer = setInterval(() => { this.nextBanner(); }, 5000);
+  }
+
+  private restartSlideTimer(): void {
+    clearInterval(this.slideTimer);
+    this.startSlideTimer();
+  }
 
   // ── Static testimonials ───────────────────────────────────────────────────
   readonly testimonials: Testimonial[] = [
@@ -162,7 +185,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to wishlist IDs for heart button state
     this.wishlistService.wishlistIds$.pipe(takeUntil(this.destroy$)).subscribe(ids => {
       this.wishlistIds = ids;
     });
@@ -172,12 +194,15 @@ export class HomeComponent implements OnInit, OnDestroy {
       next: r => { this.mapResponse(r.data); this.loading = false; },
       error: () => { this.loading = false; }
     });
+
+    this.startSlideTimer();
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
     clearTimeout(this.addedTimer);
+    clearInterval(this.slideTimer);
   }
 
   private mapResponse(data: any): void {

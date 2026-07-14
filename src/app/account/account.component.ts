@@ -91,6 +91,14 @@ export class AccountComponent implements OnInit, OnDestroy {
       this.activeTab = 'wishlist';
     }
 
+    const tabParam = this.route.snapshot.queryParams['tab'] as AccountTab | undefined;
+    if (tabParam && tabParam in this.tabLabels) {
+      this.activeTab = tabParam;
+      if (tabParam === 'notifications') this.loadNotifications();
+      if (tabParam === 'orders')        this.loadOrders();
+      if (tabParam === 'wishlist')      this.loadWishlist();
+    }
+
     this.userSub = this.authService.user$.subscribe(u => { this.profileUser = u; });
 
     if (!this.profileUser) {

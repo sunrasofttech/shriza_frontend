@@ -1,5 +1,11 @@
 <!-- ── HERO ────────────────────────────────────────────────────────────────── -->
 <section class="hero-section">
+  <button type="button" class="hero-slide-btn hero-slide-prev" (click)="prevBanner()" aria-label="Previous banner">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
   <div class="hero-copy">
     <span class="eyebrow">{{ activeBanner?.badgeText || 'Premium Organic Wellness' }}</span>
     <h1>{{ activeBanner?.title || 'Nourish Your Natural Radiance' }}</h1>
@@ -37,6 +43,12 @@
       <span class="active"></span><span></span><span></span>
     </div>
   </div>
+
+  <button type="button" class="hero-slide-btn hero-slide-next" (click)="nextBanner()" aria-label="Next banner">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
 </section>
 
 <!-- ── FEATURED PRODUCTS ───────────────────────────────────────────────────── -->
