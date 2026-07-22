@@ -105,6 +105,11 @@ export class AuthService {
     );
   }
 
+  patchUser(partial: Partial<AuthUser>): void {
+    const u = this._user.value;
+    if (u) this._user.next({ ...u, ...partial });
+  }
+
   logout() {
     return this.http.post<any>(`${this.BASE}/logout`, {}, this.OPTS).pipe(
       tap(() => this._user.next(null))

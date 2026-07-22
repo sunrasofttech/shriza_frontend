@@ -1687,3 +1687,72 @@
     gap: 8px;
   }
 }
+
+/* WALLET: loading / error / feedback */
+.wallet-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.wallet-skel-row {
+  height: 48px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #f1f3ee 25%, #e6ebe3 50%, #f1f3ee 75%);
+  background-size: 400% 100%;
+  animation: skelShimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skelShimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.wallet-load-error {
+  font-size: 0.82rem;
+  color: #c0392b;
+  background: #fff5f5;
+  border: 1px solid #fcd2d2;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 20px;
+}
+
+.add-funds-error {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: #c0392b;
+}
+
+.add-funds-success {
+  margin: 8px 0 0;
+  font-size: 0.78rem;
+  color: #0d7644;
+  font-weight: 600;
+}
+
+.wallet-tx-loading,
+.wallet-tx-empty {
+  font-size: 0.82rem;
+  color: #9aa79b;
+  padding: 10px 0;
+}
+
+.referral-stats {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 0.74rem;
+  color: #0d7644;
+  font-weight: 600;
+}
+
+/* WALLET: debit transaction styling */
+.transaction-row.transaction-debit .transaction-amount,
+.debit-amount {
+  color: #c0392b !important;
+}
+
+.debit-icon svg path {
+  stroke: #c0392b;
+}

@@ -6,16 +6,11 @@ import { CartService } from '../cart.service';
 import { NotificationService, UserNotification } from '../notification.service';
 import { WishlistService, WishlistItem } from '../wishlist.service';
 import { AuthService, AuthUser } from '../auth.service';
+import { WalletService, WalletInfo, WalletTx } from '../wallet.service';
 import { environment } from '../../environments/environment';
 
 type AccountTab = 'profile' | 'orders' | 'addresses' | 'wallet' | 'wishlist' | 'reviews' | 'notifications' | 'settings';
 
-interface WalletTransaction {
-  title: string;
-  date: string;
-  txId: string;
-  amount: number;
-}
 
 interface ProductReview {
   productName: string;
@@ -55,7 +50,8 @@ export class AccountComponent implements OnInit, OnDestroy {
     private router: Router,
     public notifService: NotificationService,
     public wishlistService: WishlistService,
-    public authService: AuthService
+    public authService: AuthService,
+    private walletService: WalletService
   ) {}
 
   activeTab: AccountTab = 'profile';
@@ -97,6 +93,7 @@ export class AccountComponent implements OnInit, OnDestroy {
       if (tabParam === 'notifications') this.loadNotifications();
       if (tabParam === 'orders')        this.loadOrders();
       if (tabParam === 'wishlist')      this.loadWishlist();
+      if (tabParam === 'wallet')        this.loadWallet();
     }
 
     this.userSub = this.authService.user$.subscribe(u => { this.profileUser = u; });
@@ -279,45 +276,158 @@ export class AccountComponent implements OnInit, OnDestroy {
 
   // ── Wallet ────────────────────────────────────────────────────────────────────
 
-  wallet = {
-    cashbackEarned: 50,
-    referralCode: 'SHRIZA99',
-    referralBonus: 100
-  };
+  readonly REFERRAL_BONUS = 100;
+  readonly quickAddAmounts = [200, 500, 1000];
 
-  quickAddAmounts = [200, 500, 1000];
+  walletInfo: WalletInfo | null = null;
+  walletTxns: WalletTx[] = [];
+  walletLoading = false;
+  walletError = '';
+  walletTxLoading = false;
+
   addAmount: number | null = null;
-
-  transactions: WalletTransaction[] = [
-    {
-      title: 'Welcome Bonus Credited',
-      date: '2026-06-23',
-      txId: 'tx-login-1782203116916',
-      amount: 500
-    }
-  ];
+  addFundsLoading = false;
+  addFundsError = '';
+  addFundsSuccess = '';
 
   get walletBalance(): number { return this.profileUser?.walletBalance ?? 0; }
 
-  quickAddFunds(amount: number): void { this.creditWallet(amount); }
+  loadWallet(): void {
+    this.walletLoading = true;
+    this.walletError = '';
+    this.walletService.getWallet().subscribe({
+      next: res => {
+        this.walletLoading = false;
+        this.walletInfo = res?.data?.wallet ?? null;
+        if (this.walletInfo) {
+          this.authService.patchUser({ walletBalance: this.walletInfo.balance });
+        }
+        this.loadWalletTransactions();
+      },
+      error: err => {
+        this.walletLoading = false;
+        this.walletError = err?.error?.message || 'Could not load wallet data.';
+      }
+    });
+  }
+
+  loadWalletTransactions(): void {
+    this.walletTxLoading = true;
+    this.walletService.getTransactions(1, 30).subscribe({
+      next: res => {
+        this.walletTxLoading = false;
+        this.walletTxns = res?.data?.transactions ?? [];
+      },
+      error: () => { this.walletTxLoading = false; }
+    });
+  }
+
+  quickAddFunds(amount: number): void {
+    this.initiateAddFunds(amount);
+  }
 
   addFunds(): void {
-    if (!this.addAmount || this.addAmount <= 0) return;
-    this.creditWallet(this.addAmount);
-    this.addAmount = null;
+    if (!this.addAmount || this.addAmount < 10) {
+      this.addFundsError = 'Minimum amount is ₹10.';
+      return;
+    }
+    this.initiateAddFunds(this.addAmount);
+  }
+
+  private initiateAddFunds(amount: number): void {
+    this.addFundsLoading = true;
+    this.addFundsError = '';
+    this.addFundsSuccess = '';
+
+    this.walletService.addFunds(amount).subscribe({
+      next: res => {
+        this.addFundsLoading = false;
+        const order = res?.data;
+        this.loadRazorpayScript().then(() => {
+          this.openRazorpayModal(order, amount);
+        }).catch(() => {
+          this.addFundsError = 'Failed to load payment gateway. Please try again.';
+        });
+      },
+      error: err => {
+        this.addFundsLoading = false;
+        this.addFundsError = err?.error?.message || 'Could not initiate payment. Please try again.';
+      }
+    });
+  }
+
+  private loadRazorpayScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if ((window as any)['Razorpay']) { resolve(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      s.onload = () => resolve();
+      s.onerror = () => reject();
+      document.body.appendChild(s);
+    });
+  }
+
+  private openRazorpayModal(order: any, amount: number): void {
+    const options = {
+      key:         order.razorpayKeyId,
+      amount:      Math.round(amount * 100),
+      currency:    order.currency || 'INR',
+      name:        'Shriza Naturals',
+      description: 'Wallet Top-up',
+      order_id:    order.razorpayOrderId,
+      handler:     (response: any) => {
+        this.addFundsLoading = true;
+        this.walletService.verifyPayment(
+          response.razorpay_order_id,
+          response.razorpay_payment_id,
+          response.razorpay_signature
+        ).subscribe({
+          next: res2 => {
+            this.addFundsLoading = false;
+            this.addFundsSuccess = `₹${amount} added to your wallet!`;
+            this.addAmount = null;
+            if (res2?.data?.newBalance !== undefined) {
+              this.authService.patchUser({ walletBalance: res2.data.newBalance });
+            }
+            this.loadWalletTransactions();
+            setTimeout(() => { this.addFundsSuccess = ''; }, 4000);
+          },
+          error: err => {
+            this.addFundsLoading = false;
+            this.addFundsError = err?.error?.message || 'Payment verification failed. Please contact support.';
+          }
+        });
+      },
+      prefill: {
+        name:    this.profileUser?.name || '',
+        email:   this.profileUser?.email || '',
+        contact: this.profileUser?.phone || ''
+      },
+      theme:  { color: '#0d7644' },
+      modal: {
+        ondismiss: () => {
+          this.addFundsLoading = false;
+          this.addFundsError = 'Payment cancelled.';
+        }
+      }
+    };
+
+    const rzp = new (window as any)['Razorpay'](options);
+    rzp.on('payment.failed', (res: any) => {
+      this.addFundsLoading = false;
+      this.addFundsError = res?.error?.description || 'Payment failed. Please try again.';
+    });
+    rzp.open();
   }
 
   copyReferralCode(): void {
-    navigator.clipboard?.writeText(this.wallet.referralCode);
+    const code = this.walletInfo?.referralCode;
+    if (code) navigator.clipboard?.writeText(code);
   }
 
-  private creditWallet(amount: number): void {
-    this.transactions.unshift({
-      title: 'Wallet Top-up',
-      date: new Date().toISOString().slice(0, 10),
-      txId: `tx-topup-${Date.now()}`,
-      amount
-    });
+  txDate(createdAt: string): string {
+    const d = new Date(createdAt);
+    return isNaN(d.getTime()) ? createdAt : d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
   // ── Wishlist ──────────────────────────────────────────────────────────────────
@@ -515,5 +625,6 @@ export class AccountComponent implements OnInit, OnDestroy {
     if (tab === 'notifications') this.loadNotifications();
     if (tab === 'orders')        this.loadOrders();
     if (tab === 'wishlist')      this.loadWishlist();
+    if (tab === 'wallet')        this.loadWallet();
   }
 }
